@@ -48,6 +48,29 @@ module FileSystem
 	def read(path)
 		File.open(path)
 	end
+
+	def write(path, string)
+		if File.file?("name")
+			0
+		else
+			open(path) { |f|
+	  			f.puts string
+			}
+			1
+		end
+	end
+
+	def cpy(path1, path2)
+		if File.directory?(path1)
+			FileUtils.cp_r "#{path1}", "#{path2}"
+			1
+		end
+		0
+	end
+
+	def getHash(pth)
+
+	end
   end
 end
 
