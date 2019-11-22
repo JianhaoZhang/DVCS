@@ -44,6 +44,10 @@ module FileSystem
 		a.each_with_index {|val,index| diff_list << [index, a[index], b[index]] if val != b[index]}
 		diff_list
 	end
+
+	def read(path)
+		File.open(path)
+	end
   end
 end
 
