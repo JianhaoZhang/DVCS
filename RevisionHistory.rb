@@ -4,6 +4,7 @@ class RevisionHistory
         @head = nil
         @temp = nil
         @hashCount = {}
+        @count = 0
     end
 
     def addFile(path)
@@ -27,13 +28,30 @@ class RevisionHistory
         
     end
 
+    def calcHash(@temp)
+        @count += 1
+        return @count
+    end
+
     def commit()
-        if @temp.nil?
-            puts "Nothing to commit"
+        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+            puts "Work tree is clean. Nothing to commit"
             return 1
         end
+
+        @temp.setCommidId(calcHash(@temp))
+        @head.setNext(@temp)
+        @temp.setPrev(@head)
+        @temp.setState(RevisionState::COMMITED)
+        @head = @temp
+        return 0
+    end
+
+    def to_s()
+        
     end
 end
 
 rh = RevisionHistory.new()
 rh.addFile("a.txt")
+puts rh.hashCount

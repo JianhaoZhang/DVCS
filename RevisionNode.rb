@@ -22,6 +22,14 @@ class RevisionNode
         @commitMsg = msg
     end
 
+    def setState(state)
+        @state = state
+    end
+
+    def getState()
+        @state
+    end
+
     def deleteFile(path)
         # check if the hash(path) appears in parent nodes
         # if not, delete from metadata
