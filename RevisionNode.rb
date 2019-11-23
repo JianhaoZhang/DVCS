@@ -26,18 +26,34 @@ class RevisionNode
         @state = state
     end
 
+    def setFileHash(fileHash)
+        @fileHash = fileHash
+    end
+
     def getState()
         @state
+    end
+
+    def getFileHash()
+        @fileHash
     end
 
     def deleteFile(path)
         # check if the hash(path) appears in parent nodes
         # if not, delete from metadata
         # maybe need a counter for each hash file
+        if @fileHash[path].nil?
+            puts "File " + path + "is not under version control."
+            return -1
+        end
+        @fileHash
     end
 
     def addFile(path, hash)
-        # get the file hash
+        if @fileHash[path] == hash
+            # Same as prev, nothing to change
+            return 1
+        end
         @fileHash[path] = hash
     end
 
