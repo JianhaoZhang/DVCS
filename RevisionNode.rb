@@ -6,7 +6,7 @@ end
 
 class RevisionNode
     def initialize()
-        @commitID = 0
+        @commitId = 0
         @commitMsg = ""
         @fileHash = {}
         @state = RevisionState::INITIALIZED
@@ -15,7 +15,7 @@ class RevisionNode
     end
 
     def setCommitId(id)
-        @commitID = id
+        @commitId = id
     end
 
     def setCommitMsg(msg)
@@ -30,12 +30,24 @@ class RevisionNode
         @fileHash = fileHash
     end
 
+    def setNext(node)
+        @next = node
+    end
+
+    def getNext()
+        @next
+    end
+
     def getState()
         @state
     end
 
     def getFileHash()
         @fileHash
+    end
+
+    def getCommitMsg()
+        @commitMsg
     end
 
     def deleteFile(path)
@@ -54,9 +66,19 @@ class RevisionNode
             # Same as prev, nothing to change
             return 1
         end
+        @state = RevisionState::MODIFIED
         @fileHash[path] = hash
     end
 
     def removeFile(path)
+    end
+
+    def each(&block)
+        block.call(self)
+        self.getNext.each(&block) if self.getNext
+    end
+
+    def print
+        puts "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"
     end
 end

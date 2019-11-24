@@ -1,9 +1,11 @@
-require_relative "RevisionNode.rb"
-require_relative "file_system.rb"
+require_relative "RevisionNode"
+require_relative "file_system"
 
 # TODO:
 # 1. hashCount does not fully functional. The repo may contain unnecessary files.
 class RevisionHistory
+include FileSystem
+
     def initialize(path, init)
         @PATH_PREFIX = "./dvcs/"
 
@@ -16,17 +18,24 @@ class RevisionHistory
             @count = 0
         else
             # load from disk
-            test2Rh(FileSystem.get_rh())
+            text2Rh(FileSystem.get_rh())
 
         end
     end
 
-    def text2Rh(text)
+    def getHashCount()
+        return @hashCount
+    end
 
+    def text2Rh(text)
+            @head = nil
+            @temp = nil
+            @hashCount = {}
+            @count = 0
     end
 
     def rh2Text()
-
+        return "asd"
     end
 
     def addFile(path)
@@ -39,6 +48,7 @@ class RevisionHistory
 
         # Get hash of a file
         hash = FileSystem.getHash(path)
+        puts hash
         h = @temp.addFile(path, hash)
 
         if @hashCount[hash].nil?
@@ -58,28 +68,46 @@ class RevisionHistory
         return @count
     end
 
-    def commit()
+    def setCommitMsg(msg)
         if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
             puts "No changes added to commit"
             return -1
         end
+        @temp.setCommitMsg(msg)
+    end
 
-        @temp.setCommidId(calcHash(@temp))
-        @head.setNext(@temp)
-        @temp.setPrev(@head)
+    def commit()
+        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+            puts "No changes added to commit"
+            return [-1, nil]
+        end
+
+        commitId = calcHash(@temp)
+        @temp.setCommitId(commitId)
+        if !@head.nil?
+            @head.setNext(@temp)
+            @temp.setPrev(@head)
+        end
         @temp.setState(RevisionState::COMMITED)
         @head = @temp
         @temp = nil
-        return 0
+        return [commitId, @head.getCommitMsg]
     end
 
-    def to_s()
-        
+    def print
+        if @head.nil?
+            puts "Revision history is empty."
+        else
+            @head.each{|x| x.print}
+        end
     end
 end
 
 if __FILE__ == $0
-    rh = RevisionHistory.new()
+    rh = RevisionHistory.new(Dir.pwd, false)
     rh.addFile("a.txt")
-    puts rh.hashCount
+    rh.setCommitMsg("commit msg")
+    rh.commit()
+    rh.print
+    puts rh.getHashCount
 end
