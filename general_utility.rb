@@ -1,4 +1,7 @@
 require_relative 'RevisionHistory.rb'
+require_relative 'file_system.rb'
+
+$repo_folder = '/dvcs/'
 
 module GeneralUtility
 
@@ -30,12 +33,31 @@ module GeneralUtility
 		end
 	end
 
+	def list_files(path)
+		return Dir.entries(path).select {|f| !File.directory? f}
+	end
+
 	def merge(rh_s, rh_t, common)
 		if (common_node.commitID = rh_t.head.commitID)
 			rh_t.head.next = common_node.next
-			rh_t.head = rh_s.head
-			# tracked hash file copy
-			# store modified revision tree to filesystem
+			rh_t.head.next.prev = rh_t.head
+
+			while (rh_t.head.next != nil)
+				rh_t.head = rh_t.head.next
+			end
+
+			src_file_list = list_files(rh_s.currPath + $repo_folder)
+			target_file_list = list_files(rh_t.currPath + $repo_folder)
+
+			if src_file_list.include? 'revision_history_file' && target_file_list.include? 'revision_history_file'
+				file_list = src_file_list - target_file_list
+				file_list.each(|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder))
+			else
+				raise 'source or target revision history is corrupted'
+			end
+
+			rh_t.rh2Text()
+
 			return 1
 		else
 			#resolve merge conflict
