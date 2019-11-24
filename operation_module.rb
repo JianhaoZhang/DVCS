@@ -4,61 +4,163 @@ require 'General_Utility'
 
 module Operation
     def Operation_init()
-        if init_repository()==1 and init_rh()==1:
+        begin
+            if init_repository()>=0 and init_rh()>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
             return 1;
-        else:
+        end
+    end
+
+    def Operation_clone(pth)
+        begin
+            if clone(pth)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
+    end
+
+    def Operation_add(pth)
+        begin
+            if add(pth)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end        
+    end
+
+    def Operation_remove(pth)
+        begin
+            if delete(pth)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
+    end
+
+    def Operation_status()
+        begin
+            p status()
             return 0;
-     end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_clone(pth):
-        return clone(pth);
+    def Operation_heads()
+        begin
+            l= heads();
+            puts "commit id is %s" % [l[0]]
+            puts "commit message is %s" % [l[1]]
+            return 0;
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_add(pth):
-        return add(pth);
+    def Operation_diff(rev1,rev2)
+        begin
+            l=diff(rev1,rev2);
+            p l
+            return 0;
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_remove(pth):
-        return delete(pth);
+    def Operation_cat(pth,rev_num)
+        begin
+            file=getFile(pth,rev_num)
+            file.each_line do |line|
+                puts line
+            end
+            return 0;
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_status();
-        return status();
+    def Operation_checkout(commitid)
+        begin
+            if checkout(commitid)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_heads();
-        return heads();
+    def Operation_commit(commit_mes)
+        begin
+            if commit(commit_mes)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_diff(rev1,rev2):
-        l=diff(rev1,rev2);
-        p l
-        return l;
+    def Operation_log()
+        begin
+            p log()
+            return 0;
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_cat(pth,rev_num):
-        return cat(pth,rev_num);
+    def Operation_pull(url)
+        begin
+            if pull(url)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
-    def Operation_checkout(commitid):
-        return checkout(commitid);
-    end
-
-    def Operation_commit(commit_mes):
-        return commit(commit_mes);
-    end
-
-    def Operation_log():
-        return log();
-    end
-
-    def Operation_pull(url):
-        return pull(url);
-    end
-
-    def Operation_push(url):
-        return push(url);
+    def Operation_push(url)
+        begin
+            if push(url)>=0
+                return 0;
+            else
+                return 1;
+            end
+        rescue StandardError => e
+            puts e.message
+            return 1;
+        end
     end
 
 end
