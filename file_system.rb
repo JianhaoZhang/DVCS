@@ -1,4 +1,6 @@
+require 'digest'
 require 'fileutils'
+require 'digest/sha1'
 
 module FileSystem
 	def init()
@@ -8,6 +10,7 @@ module FileSystem
 			Dir.mkdir './.dvcs'
 			out_file = File.new(File.join("./.dvcs", "revision_history_file"), "w")
 			out_file.close
+		end
 	end
 
 	def clone(pth)
@@ -50,10 +53,10 @@ module FileSystem
 	end
 
 	def write(path, string)
-		if File.file?("name")
+		if File.file?(path)
 			0
 		else
-			open(path) { |f|
+			open(path, 'w') { |f|
 	  			f.puts string
 			}
 			1
@@ -64,14 +67,29 @@ module FileSystem
 		if File.directory?(path1)
 			FileUtils.cp_r "#{path1}", "#{path2}"
 			1
+		elsif File.file?(path1)
+			FileUtils.cp "#{path1}", "#{path2}"
+			1
+		else
+			0
 		end
-		0
 	end
 
 	def getHash(pth)
-
+		Digest::SHA1.hexdigest "#{pth}"
 	end
-  end
+
+	def delete(pth)
+		if File.directory?(pth)
+			FileUtils.remove_dir(pth)
+			1
+		elsif File.file?(pth)
+			File.delete(pth)
+			1
+		else
+			0
+		end
+	end
 end
 
 class DVCS
@@ -79,7 +97,11 @@ class DVCS
 end
 
 dvcs_file = DVCS.new
-dvcs_file.init()
+# dvcs_file.init()
 # dvcs_file.clone('/u/zkou2/Code/453/p2')
 # dvcs_file.store_rh(['a', 'b', 'c'])
-p dvcs_file.diff('file1', 'file2')
+# p dvcs_file.diff('file1', 'file2')
+# p dvcs_file.write('file1','123')
+# p dvcs_file.cpy('file1','file3')
+# p dvcs_file.getHash('/u/zkou2/Code/DVCS/file1')
+p dvcs_file.delete('us')
