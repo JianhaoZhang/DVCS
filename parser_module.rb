@@ -1,37 +1,48 @@
-require 'Operation'
+# require 'Operation'
 module Parser
 
-def parse(*args):
-	case args[1]
-		when "init"
-			return Operation_init();
-		when "clone"
-			return Operation_clone(args[2]);
-		when "add"
-			return Operation_add(args[2]);
-		when "remove"
-			return Operation_remove(args[2]);
-		when "status"
-			Operation_status()
-			return 0;
-		when "heads"
-			return Operation_heads(args[2])[0].to_i;
-		when "diff"
-			Operation_diff(args[2],args[3])
-			return 1;
-		when "cat"
-			Operation_cat(args[2],args[3])
-			return 1;
-		when "checkout"
-			return Operation_checkout(args[2]);
-        when "commit"
-        	return Operation_commit(args[2])[0].to_i;
-        when "log"
-        	Operation_log()
-        	return 1;
-        when "pull"
-            return Operation_pull(args[2]);
-        when "push"
-        	return Operation_push(args[2]);
+def prompt(sig)
+    if sig==0
+        puts "command succeeds"
+    else
+        puts "command fails"
     end
 end
+
+def parse(args)
+    case args[0]
+        when "init"
+            prompt(Operation_init())
+        when "clone"
+            prompt(Operation_clone(args[1]))
+        when "add"
+            prompt(Operation_add(args[1]))
+        when "remove"
+            prompt(Operation_remove(args[1]))
+        when "status"
+            prompt(Operation_status())
+        when "heads"
+            prompt(Operation_heads(args[1])[0])
+        when "diff"
+            prompt(Operation_diff(args[1],args[2]))
+        when "cat"
+            prompt(Operation_cat(args[1],args[2]))
+        when "checkout"
+            prompt(Operation_checkout(args[1]))
+        when "commit"
+            prompt(Operation_commit(args[1])[0])
+        when "log"
+            prompt(Operation_log())
+        when "pull"
+            prompt(Operation_pull(args[1]))
+        when "push"
+            prompt(Operation_push(args[1]))
+    end
+end
+end
+class Mymain
+    include Parser
+end
+
+m=Mymain.new()
+m.parse(ARGV)
