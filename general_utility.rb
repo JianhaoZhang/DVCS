@@ -15,8 +15,8 @@ module GeneralUtility
 	end
 
 	def lca(rh_s, rh_t)
-		tree_s = rh_s.temp
-		tree_t = rh_t.temp
+		tree_s = rh_s.head
+		tree_t = rh_t.head
 		if (tree_s.commitID == tree_t.commitID)
 			identical_node = nil
 			while (tree_s != nil && tree_t != nil)
@@ -38,12 +38,12 @@ module GeneralUtility
 	end
 
 	def merge(rh_s, rh_t, common)
-		if (common_node.commitID = rh_t.head.commitID)
-			rh_t.head.next = common_node.next
-			rh_t.head.next.prev = rh_t.head
+		if (common.commitID = rh_t.tail.commitID)
+			rh_t.tail.next = common.next
+			rh_t.tail.next.prev = rh_t.tail
 
-			while (rh_t.head.next != nil)
-				rh_t.head = rh_t.head.next
+			while (rh_t.tail.next != nil)
+				rh_t.tail = rh_t.tail.next
 			end
 
 			src_file_list = list_files(rh_s.currPath + $repo_folder)
@@ -75,8 +75,12 @@ module GeneralUtility
 			raise 'working directory is not a repository or corrupted'
 		else
 			common_node = lca(working_repo, target_repo)
-			if (merge(working_repo, target_repo, common_node) < 0)
-				raise 'merge failed'
+			if common_node != nil
+				if (merge(working_repo, target_repo, common_node) < 0)
+					raise 'merge failed'
+				end
+			else
+				raise 'target repository is irrelevant'
 			end
 		end
 	end
@@ -91,10 +95,14 @@ module GeneralUtility
 			raise 'working directory is not a repository or corrupted'
 		else
 			common_node = lca(remote_repo, working_repo)
-			if (merge(remote_repo, working_repo, common_node) < 0)
-				raise 'merge failed'
+			if common_node != nil
+				if (merge(remote_repo, working_repo, common_node) < 0)
+					raise 'merge failed'
+				end
+			else
+				raise 'remote repository is irrelevant'
 			end
 		end
 	end
-
+	
 end
