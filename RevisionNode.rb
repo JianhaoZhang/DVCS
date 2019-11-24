@@ -35,6 +35,10 @@ class RevisionNode
         @next = node
     end
 
+    def setPrev(node)
+        @prev = node
+    end
+
     def getNext()
         @next
     end
@@ -47,6 +51,10 @@ class RevisionNode
         @fileHash
     end
 
+    def getCommitId()
+        @commitId
+    end
+
     def getCommitMsg()
         @commitMsg
     end
@@ -56,21 +64,19 @@ class RevisionNode
         # if not, delete from metadata
         # maybe need a counter for each hash file
         if @fileHash[path].nil?
-            raise "File " + path + "is not under version control."
+            raise "File " + path + " is not under version control."
         end
         @fileHash.delete(path)
+        return 0
     end
 
     def addFile(path, hash)
         if @fileHash[path] == hash
-            # Same as prev, nothing to change
+            puts "Added the same file " + path
             return 1
         end
-        @state = RevisionState::MODIFIED
         @fileHash[path] = hash
-    end
-
-    def removeFile(path)
+        return 0
     end
 
     def each(&block)
