@@ -3,7 +3,7 @@ require 'fileutils'
 require 'digest/sha1'
 
 module FileSystem
-	def init()
+	def FileSystem.init()
 	  	if Dir.exist?('./.dvcs')
 	  		raise 'cannot create directory .dvcs: directory exists!' 
 		else
@@ -13,7 +13,7 @@ module FileSystem
 		end
 	end
 
-	def clone(pth)
+	def FileSystem.clone(pth)
 		if Dir.entries("#{pth}").select {|entry| File.directory? entry}.include? '.dvcs'
 			FileUtils.cp_r "#{pth}", './'
 		else
@@ -21,13 +21,13 @@ module FileSystem
 		end
 	end
 
-	def store_rh(l_strings)
+	def FileSystem.store_rh(l_strings)
 		open(File.join("./.dvcs", "revision_history_file"), "a") { |f|
   			l_strings.each { |element| f.puts(element) }
 		}
 	end
 
-	def get_rh()
+	def FileSystem.get_rh()
 		text = []
 		File.foreach(File.join("./.dvcs", "revision_history_file")) do |line|
 		  text << line
@@ -36,7 +36,7 @@ module FileSystem
 		text
 	end
 
-	def diff(file1, file2)
+	def FileSystem.diff(file1, file2)
 		a = open(file1, "r").read.split("\n")
 		b = open(file2, "r").read.split("\n")
 		if a.length != b.length
@@ -48,11 +48,12 @@ module FileSystem
 		diff_list
 	end
 
-	def read(path)
-		File.open(path)
+	def FileSystem.read(path)
+		# File.open(path)
+		open(path,"r").read.split("\n")
 	end
 
-	def write(path, string)
+	def FileSystem.write(path, string)
 		if File.file?(path)
 			0
 		else
@@ -63,7 +64,7 @@ module FileSystem
 		end
 	end
 
-	def cpy(path1, path2)
+	def FileSystem.cpy(path1, path2)
 		if File.directory?(path1)
 			FileUtils.cp_r "#{path1}", "#{path2}"
 			1
@@ -75,11 +76,11 @@ module FileSystem
 		end
 	end
 
-	def getHash(pth)
+	def FileSystem.getHash(pth)
 		Digest::SHA1.hexdigest "#{pth}"
 	end
 
-	def delete(pth)
+	def FileSystem.delete(pth)
 		if File.directory?(pth)
 			FileUtils.remove_dir(pth)
 			1
@@ -92,11 +93,11 @@ module FileSystem
 	end
 end
 
-class DVCS
-	include FileSystem
-end
+# class DVCS
+# 	include FileSystem
+# end
 
-dvcs_file = DVCS.new
+# dvcs_file = DVCS.new
 # dvcs_file.init()
 # dvcs_file.clone('/u/zkou2/Code/453/p2')
 # dvcs_file.store_rh(['a', 'b', 'c'])
@@ -104,4 +105,4 @@ dvcs_file = DVCS.new
 # p dvcs_file.write('file1','123')
 # p dvcs_file.cpy('file1','file3')
 # p dvcs_file.getHash('/u/zkou2/Code/DVCS/file1')
-p dvcs_file.delete('us')
+# p dvcs_file.delete('us')
