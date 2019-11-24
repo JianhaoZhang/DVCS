@@ -1,3 +1,4 @@
+# coding: utf-8
 module RevisionState
     INITIALIZED = 1
     MODIFIED = 2
@@ -55,10 +56,9 @@ class RevisionNode
         # if not, delete from metadata
         # maybe need a counter for each hash file
         if @fileHash[path].nil?
-            puts "File " + path + "is not under version control."
-            return -1
+            raise "File " + path + "is not under version control."
         end
-        @fileHash
+        @fileHash.delete(path)
     end
 
     def addFile(path, hash)
@@ -78,7 +78,12 @@ class RevisionNode
         self.getNext.each(&block) if self.getNext
     end
 
-    def print
-        puts "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"
+    def to_s
+        "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"        
     end
+
+    def print
+        puts "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"        
+    end
+
 end

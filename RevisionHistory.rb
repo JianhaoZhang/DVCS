@@ -4,7 +4,7 @@ require_relative "file_system"
 # TODO:
 # 1. hashCount does not fully functional. The repo may contain unnecessary files.
 class RevisionHistory
-include FileSystem
+    include FileSystem
 
     def initialize(path, init)
         @PATH_PREFIX = "./dvcs/"
@@ -13,8 +13,10 @@ include FileSystem
         if init
             FileSystem.init()
             @head = nil
+            @tail = nil
             @temp = nil
             @hashCount = {}
+            @commitMap = {}
             @count = 0
         else
             # load from disk
@@ -28,14 +30,19 @@ include FileSystem
     end
 
     def text2Rh(text)
-            @head = nil
-            @temp = nil
-            @hashCount = {}
-            @count = 0
+        @head = nil
+        @tail = nil
+        @temp = nil
+        @hashCount = {}
+        @commitMap = {}
+        @count = 0
     end
 
     def rh2Text()
-        return "asd"
+        if !self.head.nil?
+            str = self.log
+            FileSystem.store_rh(str)
+        end
     end
 
     def addFile(path)
@@ -84,21 +91,31 @@ include FileSystem
 
         commitId = calcHash(@temp)
         @temp.setCommitId(commitId)
-        if !@head.nil?
-            @head.setNext(@temp)
-            @temp.setPrev(@head)
+        @commitMap[commidId] = @temp
+        if !@tail.nil?
+            @tail.setNext(@temp)
+            @temp.setPrev(@tail)
+        else
+            @head = @temp
         end
         @temp.setState(RevisionState::COMMITED)
-        @head = @temp
+        @tail = @temp
         @temp = nil
-        return [commitId, @head.getCommitMsg]
+        return [commitId, @tail.getCommitMsg]
     end
 
-    def print
+    def heads
+        return [@tail.getCommitId, @tail.getCommitMsg]
+    end
+
+    def log
         if @head.nil?
-            puts "Revision history is empty."
+            "Revision history is empty."
         else
+            ret = ""
             @head.each{|x| x.print}
+            puts ret
+            return ret
         end
     end
 end
@@ -106,8 +123,10 @@ end
 if __FILE__ == $0
     rh = RevisionHistory.new(Dir.pwd, false)
     rh.addFile("a.txt")
+    rh.addFile("a.txt")
     rh.setCommitMsg("commit msg")
-    rh.commit()
-    rh.print
+    puts rh.commit()
+    puts rh.log
+    # rh.print
     puts rh.getHashCount
 end
