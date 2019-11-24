@@ -18,7 +18,7 @@ module GeneralUtility
 			identical_node = nil
 			while (tree_s != nil && tree_t != nil)
 				if (tree_s.commitID == tree_t.commitID)
-					identical_node = tree_t
+					identical_node = tree_s
 				end
 				tree_s = tree_s.next
 				tree_t = tree_t.next
@@ -30,8 +30,17 @@ module GeneralUtility
 		end
 	end
 
-	def merge(rh_s, rh_t)
-		
+	def merge(rh_s, rh_t, common)
+		if (common_node.commitID = rh_t.head.commitID)
+			rh_t.head.next = common_node.next
+			rh_t.head = rh_s.head
+			# tracked hash file copy
+			# store modified revision tree to filesystem
+			return 1
+		else
+			#resolve merge conflict
+			return -1
+		end
 	end
 
 	def push(target_dir)
@@ -44,6 +53,9 @@ module GeneralUtility
 			raise 'working directory is not a repository or corrupted'
 		else
 			common_node = lca(working_repo, target_repo)
+			if (merge(working_repo, target_repo, common_node) < 0)
+				raise 'merge failed'
+			end
 		end
 	end
 
@@ -57,6 +69,9 @@ module GeneralUtility
 			raise 'working directory is not a repository or corrupted'
 		else
 			common_node = lca(remote_repo, working_repo)
+			if (merge(remote_repo, working_repo, common_node) < 0)
+				raise 'merge failed'
+			end
 		end
 	end
 
