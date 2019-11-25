@@ -100,7 +100,7 @@ class RevisionHistory
         ret = fileHash1.map do |pth, hash|
             if fileHash2[pth].nil?
                 ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
-            elif fileHash1[pth] != fileHash2[pth]
+            elsif fileHash1[pth] != fileHash2[pth]
                 ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth])
             end
         end
@@ -184,7 +184,40 @@ class RevisionHistory
     end
 
     def status
-
+        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+            return "No changes in current repository"
+        elsif @tail.nil?
+            "Added file:\n" + @temp.getFileHash.collect {|pth, hash| pth}
+        else
+            fileHash1 = @tail.getFileHash
+            fileHash2 = @temp.getFileHash
+            modified = []
+            deleted = []
+            added = []
+            fileHash1.each do |pth, hash|
+                if fileHash2[pth].nil?
+                    deleted << pth
+                elsif fileHash1[pth] != fileHash2[pth]
+                    changed << pth
+                end
+            end
+            fileHash2.each do |pth, hash|
+                if fileHash1[pth].nil?
+                    added << pth
+                end
+            end
+            ret = ""
+            if added.length != 0
+                ret += "Added file(s):\n" + added.to_s
+            end
+            if deleted.length != 0
+                ret += "\nDeleted file(s):\n" + deleted.to_s
+            end
+            if modified.length != 0
+                ret += "\nModified file(s):\n" + modified.to_s
+            end
+            return ret
+        end
     end
 end
 
@@ -195,6 +228,7 @@ if __FILE__ == $0
     rh.commit()
 
     rh.addFile("./b.txt")
+    puts rh.status
     rh.setCommitMsg("Add b.txt")
     rh.commit()
 
