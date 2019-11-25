@@ -89,7 +89,11 @@ class RevisionNode
     end
 
     def print
-        puts "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"        
+        if @next.nil?
+            self.to_s
+        else
+            self.to_s + @next.print
+        end
     end
 
 end

@@ -7,7 +7,7 @@ class RevisionHistory
     include FileSystem
 
     def initialize(path, init)
-        @PATH_PREFIX = "./.dvcs/"
+        @PATH_PREFIX = "/.dvcs/"
 
         @currPath = path
         if init
@@ -60,7 +60,7 @@ class RevisionHistory
 
         if @hashCount[hash].nil?
             @hashCount[hash] = 1
-            FileSystem.cpy(path, @PATH_PREFIX + hash)
+            FileSystem.cpy(@currPath + path, @currPath + @PATH_PREFIX + hash)
         else
             @hashCount[hash] += 1
         end
@@ -88,18 +88,25 @@ class RevisionHistory
     end
 
     def diff(commitId1, commitId2)
+        if @commitMap[commitId1].nil?
+            raise "Invalid CommitID " + commitId1
+        end
+        if @commitMap[commitId2].nil?
+            raise "Invalid CommitID " + commitId2
+        end
+
         fileHash1 = @commitMap[commitId1].getFileHash
         fileHash2 = @commitMap[commitId2].getFileHash
         ret = fileHash1.map do |pth, hash|
             if fileHash2[pth].nil?
-                ["---- Delete file " + pth + "\n"] + FileSystem.read(@PATH_PREFIX + hash)
+                ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
             elif fileHash1[pth] != fileHash2[pth]
-                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@PATH_PREFIX + hash, @PATH_PREFIX + fileHash2[pth])
+                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth])
             end
         end
         ret += fileHash2.map do |pth, hash|
             if fileHash1[pth].nil?
-                ["++++ Add file " + pth + "\n"] + FileSystem.read(@PATH_PREFIX + hash)
+                ["++++ Add file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
             end
         end
         return ret
@@ -115,7 +122,7 @@ class RevisionHistory
             raise "File " + path + "is not under version control for commit " + commitId + "."
         end
 
-        return FileSystem.read(@PATH_PREFIX + node.getFileHash[path])
+        return FileSystem.read(@currPath + @PATH_PREFIX + node.getFileHash[path])
     end
 
     def calcHash(node)
@@ -161,13 +168,23 @@ class RevisionHistory
 
     def log
         if @head.nil?
-            "Revision history is empty."
+            return "Revision history is empty."
         else
-            ret = ""
-            @head.each{|x| x.print}
-            puts ret
-            return ret
+            return @head.print
         end
+    end
+
+    def checkout(commitId)
+        if @commitMap[commitId].nil?
+            raise "Invalid CommitID " + commitId
+        end
+        fileHash = @@commitMap[commitId].getFileHash
+        fileHash.each {|pth, hash| FileSystem.cpy(@currPath + @PATH_PREFIX + hash, @currPath + pth)}
+        return 0
+    end
+
+    def status
+
     end
 end
 
@@ -186,7 +203,8 @@ if __FILE__ == $0
     rh.commit()
 
     puts rh.diff(1, 2)
-    # puts rh.log
+    puts rh.getFile("./b.txt", 2)
+    puts rh.log
     # puts rh.heads
     # rh.print
     # puts rh.getHashCount
