@@ -66,42 +66,87 @@ module GeneralUtility
 			while (cursor.commitID != common.commitID)
 				cursor = cursor.prev
 			end
-			source_ext = common.next
-			target_ext = cursor.next
 
 			lca_hashes = common.fileHash.to_a
 			src_hashes = rh_s.tail.fileHash.to_a
 			target_hashes = rh_t.tail.fileHash.to_a
 
 			src_changes = src_hashes - lca_hashes
-			src_deletions = lca_hashes - src_hashes
+			src_deletions = (lca_hashes - src_hashes) - src_changes
 			tgt_changes = target_hashes - lca_hashes
+			tgt_deletions = (lca_hashes - target_hashes) - tgt_changes
 
+			src_temp = split_add_mod(src_changes)
+			src_modifications = src_temp[0]
+			src_additions = src_temp[1]
 
+			tgt_temp = split_add_mod(tgt_changes)
+			tgt_modifications = tgt_temp[0]
+			tgt_additions = tgt_temp[1]
 
-			# answered = false
-			# while (!answered)
-			# 	puts 'Merge conflict happens, merge forcibly? (Y/N)'
-			# 	input = gets
-			# 	if (input.strip.downcase == 'y')
-			# 		answered = true
+			merge_conflicts = []
 
-			# 		puts 'resolving merge conflict'
-			# 		cursor = rh_t.tail
+			for mod_s in src_modifications
+				for mod_t in tgt_modifications
+					if mod_s[0] == mod_t[0]
+						if mod_s[1] == mod_t[1]
+							if mod_s[2] != mod_t[2]
+								merge_conflicts << [mod_s[0], mod_s[1], mod_s[2], mod_t[2]]
+							end
+						else
+							raise 'fatal logic problem with common ancestor'
+						end
+					end
+				end
+			end
 
-			# 		while (cursor.commitID != common.commitID)
-			# 			cursor = cursor.prev
-			# 		end
+			merge_conflicts = merge_conflicts.uniq
 
-			# 	elsif (input.strip.downcase == 'n')
-			# 		answered = true
-			# 		puts 'merge terminated by user'
-			# 	else
-			# 		puts 'input not recognized, merge terminated'
-			# 	end
-			# end
+			for i in merge_conflicts
+				puts i
+			end
+
+			if merge_conflicts != nil
+				answered = false
+				while (!answered)
+					puts 'Merge conflict happens, merge forcibly? (Y/N)'
+					input = gets
+					if (input.strip.downcase == 'y')
+						answered = true
+
+					elsif (input.strip.downcase == 'n')
+						answered = true
+						puts 'merge terminated by user'
+					else
+						puts 'input not recognized, merge terminated'
+					end
+				end
+			end
 			return -1
 		end
+	end
+
+	def split_add_mod(changes)
+		result = []
+		modifications = []
+		additions = []
+		mod_ruler = Array.new(changes.length, false)
+		for i in 0..changes.length
+			anchor = changes[i][0]
+			for j in (i+1)..changes.length
+				if anchor == changes[j][0]
+					modifications << [anchor, changes[i][1], changes[j][1]]
+					mod_ruler[i] = true
+					mod_ruler[j] = true
+				end
+			end
+			if !mod_ruler[i]
+				additions << anchor
+			end
+		end	
+		result << modifications
+		result << additions
+		return result
 	end
 
 	def resolve(rh_s, rh_t, common)
