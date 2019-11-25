@@ -39,6 +39,7 @@ module GeneralUtility
 
 	def merge(rh_s, rh_t, common)
 		if (common.commitID = rh_t.tail.commitID)
+			#fast-forward merge
 			rh_t.tail.next = common.next
 			rh_t.tail.next.prev = rh_t.tail
 
@@ -60,9 +61,51 @@ module GeneralUtility
 
 			return 1
 		else
-			#resolve merge conflict
+			#3-way merge
+			cursor = rh_t.tail
+			while (cursor.commitID != common.commitID)
+				cursor = cursor.prev
+			end
+			source_ext = common.next
+			target_ext = cursor.next
+
+			lca_hashes = common.fileHash.to_a
+			src_hashes = rh_s.tail.fileHash.to_a
+			target_hashes = rh_t.tail.fileHash.to_a
+
+			src_changes = src_hashes - lca_hashes
+			src_deletions = lca_hashes - src_hashes
+			tgt_changes = target_hashes - lca_hashes
+
+
+
+			# answered = false
+			# while (!answered)
+			# 	puts 'Merge conflict happens, merge forcibly? (Y/N)'
+			# 	input = gets
+			# 	if (input.strip.downcase == 'y')
+			# 		answered = true
+
+			# 		puts 'resolving merge conflict'
+			# 		cursor = rh_t.tail
+
+			# 		while (cursor.commitID != common.commitID)
+			# 			cursor = cursor.prev
+			# 		end
+
+			# 	elsif (input.strip.downcase == 'n')
+			# 		answered = true
+			# 		puts 'merge terminated by user'
+			# 	else
+			# 		puts 'input not recognized, merge terminated'
+			# 	end
+			# end
 			return -1
 		end
+	end
+
+	def resolve(rh_s, rh_t, common)
+		
 	end
 
 	def push(target_dir)
@@ -104,5 +147,5 @@ module GeneralUtility
 			end
 		end
 	end
-	
+
 end
