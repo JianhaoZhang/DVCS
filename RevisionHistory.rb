@@ -99,7 +99,7 @@ class RevisionHistory
 
         if @hashCount[hash].nil?
             @hashCount[hash] = 1
-            FileSystem.cpy(@currPath + path, @currPath + @PATH_PREFIX + hash)
+            FileSystem.cpy(@currPath + "/" + path, @currPath + @PATH_PREFIX + hash)
         else
             @hashCount[hash] += 1
         end
@@ -219,7 +219,7 @@ class RevisionHistory
             raise "Invalid CommitID " + commitId
         end
         fileHash = @@commitMap[commitId].getFileHash
-        fileHash.each {|pth, hash| FileSystem.cpy(@currPath + @PATH_PREFIX + hash, @currPath + pth)}
+        fileHash.each {|pth, hash| FileSystem.cpy(@currPath + @PATH_PREFIX + hash, @currPath + "/" + pth)}
         return 0
     end
 
