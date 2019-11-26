@@ -145,14 +145,14 @@ class RevisionHistory
         fileHash2 = @commitMap[commitId2].getFileHash
         ret = fileHash1.map do |pth, hash|
             if fileHash2[pth].nil?
-                ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
+                ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash).to_a()
             elsif fileHash1[pth] != fileHash2[pth]
-                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth])
+                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth]).to_a()
             end
         end
         ret += fileHash2.map do |pth, hash|
             if fileHash1[pth].nil?
-                ["++++ Add file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
+                ["++++ Add file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash).to_a()
             end
         end
         return ret
