@@ -105,7 +105,7 @@ class RevisionHistory
 
         if @hashCount[hash].nil?
             @hashCount[hash] = 1
-            FileSystem.cpy(@currPath + "/" + path, @currPath + @PATH_PREFIX + hash)
+            FileSystem.cpy(@currPath + path, @currPath + @PATH_PREFIX + hash)
         else
             @hashCount[hash] += 1
         end
