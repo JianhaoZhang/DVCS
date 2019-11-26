@@ -7,7 +7,7 @@ class RevisionHistory
     include FileSystem
 
     def initialize(path, init)
-        @PATH_PREFIX = "/.dvcs/"
+        @PATH_PREFIX = ".dvcs/"
 
         @currPath = path + "/"
 
