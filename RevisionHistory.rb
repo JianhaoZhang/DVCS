@@ -238,7 +238,7 @@ class RevisionHistory
                 if fileHash2[pth].nil?
                     deleted << pth
                 elsif fileHash1[pth] != fileHash2[pth]
-                    changed << pth
+                    modified << pth
                 end
             end
             fileHash2.each do |pth, hash|
