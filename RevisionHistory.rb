@@ -17,6 +17,8 @@ class RevisionHistory
         @hashCount = {}
         @commitMap = {}
         @count = 0
+        
+        #
         if init
             FileSystem.init()
         else
