@@ -23,7 +23,8 @@ module FileSystem
 
 	def FileSystem.store_rh(l_strings)
 		open(File.join("./.dvcs", "revision_history_file"), "a") { |f|
-  			l_strings.each { |element| f.puts(element) }
+  			# l_strings.each { |element| f.puts(element) }
+  			f.puts(l_strings)
 		}
 	end
 
