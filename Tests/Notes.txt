@@ -4,19 +4,15 @@ We need to merge the branches of the project in the the master probably
 We should probably create a file "DVCS" to run the program from (contain the main method and call the parser module on the input).
 That way we can run by calling 'ruby DVCS.rb ...' instead of 'ruby parser_module.rb ...'
 
-pretty sure repo folder in general utility should be /.dvcs/ instead of /dvcs/
 
 Operation/Parser Modules don't include correctly and thus cannot function. 
 
-Various Syntax Errors in the General Utility Module.
 
 Operation_init()
 init_repository and init_rh don't actually exist anywhere?
 
 file_system methods don't return ints in all cases, but various methods such as in the operation module requires them to? One or the other needs to be changed
 
-In revision history module addFile method was renamed from add method (causing problems there). Also deleteFile versus delete. 
-Side note: delete is a method in file_system module it looks like that just deletes the file. 
 
 Init in the revision history module was renamed to initialize and now takes 2 inputs (modify other modules as necessary)
 
@@ -28,4 +24,4 @@ other modules from within the operations module. But essentially any times the o
 
 Commit in rh module isn't supposed to take a commit message. The operations module needs to manually set the message after calling the commit.
 
-Missing the store/load methods implementation in the revision history
+undefined method `head' for #<RevisionHistory:0x00007fa2c019dec0> Line 243 in the General Utility module. Unsure how to fix this
