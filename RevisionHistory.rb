@@ -7,9 +7,9 @@ class RevisionHistory
     include FileSystem
 
     def initialize(path, init)
-        @PATH_PREFIX = "/.dvcs/"
+        @PATH_PREFIX = ".dvcs/"
 
-        @currPath = path
+        @currPath = path + "/"
 
         @head = nil
         @tail = nil
@@ -17,6 +17,8 @@ class RevisionHistory
         @hashCount = {}
         @commitMap = {}
         @count = 0
+        
+        #
         if init
             FileSystem.init()
         else
@@ -33,9 +35,11 @@ class RevisionHistory
     def text2Rh()
         text = FileSystem.get_rh()
         @temp = nil
+        commitMsg = ""
+        isTemp = false
         text.each_with_index do |e, idx|
-            if e.start_with?("CommitID:")
-                @count+=1
+            if e.start_with?("CommitID:") || e.start_with?("+ CommitID:")
+                @count += 1
                 if !@temp.nil?
                     @commitMap[@temp.getCommitId()] = @temp
                     if !@tail.nil?
@@ -49,9 +53,19 @@ class RevisionHistory
                 end 
                 @temp = RevisionNode.new()
                 @temp.setCommitId(e.split(":")[1].strip.to_i)
+                if e.start_with?("+ CommitID:")
+                    isTemp = true
+                    @temp.setState(RevisionState::MODIFIED)
+                end
+                commitMsg = ""
             elsif e.start_with?("Commit Message:")
-                @temp.setCommitMsg(e.split(":")[-1][1..-1])
+                if e.split(":").length > 1
+                    commitMsg = e.split(":")[-1]
+                else
+                    commitMsg = ""
+                end
             elsif e.start_with?("File Hash:")
+                @temp.setCommitMsg(commitMsg[1..-1])
                 e_dict = eval(e.split(":")[-1][1..-1])
                 e_dict.each do |key, value|
                     @temp.addFile(key, value)
@@ -61,10 +75,12 @@ class RevisionHistory
                         @hashCount[value] += 1
                     end
                 end
+            else
+                commitMsg += "\n" + e
             end
         end
         
-        if !@temp.nil?
+        if !@temp.nil? && !isTemp
             @commitMap[@temp.getCommitId()] = @temp
             if !@tail.nil?
                 @tail.setNext(@temp)
@@ -73,14 +89,17 @@ class RevisionHistory
                 @head = @temp
             end
             @temp.setState(RevisionState::COMMITED)
-            @tail = @temp   
-        end 
-        @temp = nil
+            @tail = @temp
+            @temp = nil
+        end
     end
 
     def rh2Text()
         if !self.heads.nil?
             str = self.log
+            if !@temp.nil? && @temp.getState != RevisionState::INITIALIZED
+                str += "+ " + @temp.to_s
+            end
             FileSystem.store_rh(str)
         end
     end
@@ -139,14 +158,14 @@ class RevisionHistory
         fileHash2 = @commitMap[commitId2].getFileHash
         ret = fileHash1.map do |pth, hash|
             if fileHash2[pth].nil?
-                ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
+                ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash).to_a()
             elsif fileHash1[pth] != fileHash2[pth]
-                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth])
+                ["+-+- Change file " + pth + "\n"] + FileSystem.diff(@currPath + @PATH_PREFIX + hash, @currPath + @PATH_PREFIX + fileHash2[pth]).to_a()
             end
         end
         ret += fileHash2.map do |pth, hash|
             if fileHash1[pth].nil?
-                ["++++ Add file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash)
+                ["++++ Add file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash).to_a()
             end
         end
         return ret
@@ -218,7 +237,7 @@ class RevisionHistory
         if @commitMap[commitId].nil?
             raise "Invalid CommitID " + commitId
         end
-        fileHash = @@commitMap[commitId].getFileHash
+        fileHash = @commitMap[commitId].getFileHash
         fileHash.each {|pth, hash| FileSystem.cpy(@currPath + @PATH_PREFIX + hash, @currPath + pth)}
         return 0
     end
@@ -238,7 +257,7 @@ class RevisionHistory
                 if fileHash2[pth].nil?
                     deleted << pth
                 elsif fileHash1[pth] != fileHash2[pth]
-                    changed << pth
+                    modified << pth
                 end
             end
             fileHash2.each do |pth, hash|
@@ -259,19 +278,29 @@ class RevisionHistory
             return ret
         end
     end
+
+    def getTemp
+        @temp
+    end
 end
 
 if __FILE__ == $0
-    rh = RevisionHistory.new(Dir.pwd, false)
-    # rh.addFile("./a.txt")
-    # rh.setCommitMsg("Add a.txt")
-    # rh.commit()
+    rh = RevisionHistory.new(Dir.pwd, true)
+    rh.add("./a.txt")
+    rh.setCommitMsg("Add a.txt")
+    rh.commit()
     puts rh.log
 
-    # rh.addFile("./b.txt")
-    # # puts rh.status
-    # rh.setCommitMsg("Add b.txt")
+    rh.add("./b.txt")
+    # puts rh.status
+    # rh.setCommitMsg("Add\nb.txt\nTest\nMulti-line")
     # rh.commit()
+    rh.rh2Text
+
+    rh = RevisionHistory.new(Dir.pwd, false)
+    puts rh.log
+    puts rh.status
+    puts rh.getTemp.to_s
 
     # rh.removeFile("./b.txt")
     # rh.setCommitMsg("Remove b.txt")
