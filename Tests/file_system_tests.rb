@@ -31,12 +31,10 @@ class Test_p1 < Minitest::Test
       output1 = Open3.capture2("ls -a")
 
       
-      assert Dir.exist?(".DVCS"), ".DVCS not created"
-      assert File.file?(".DVCS/revision_history_file"), "revision history file not created"
+      assert Dir.exist?(".dvcs"), ".dvcs not created"
+      assert File.file?(".dvcs/revision_history_file"), "revision history file not created"
       t = false
-      assert_raises StandardError do
-        FileSystem.init()
-      end
+      assert FileSystem.init() == 0, "init should fail!"
     end
 
   end
@@ -64,7 +62,8 @@ class Test_p1 < Minitest::Test
       #storing and then retriving data should not change the data
       FileSystem.store_rh(b)
       result = FileSystem.get_rh()
-      assert_equal result, n
+      assert_equal result, b
+      # assert_equal result[0], b[0]
       #checking that storing ne data doesn't corrupt
       FileSystem.store_rh(n)
       result = FileSystem.get_rh()
