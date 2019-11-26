@@ -159,8 +159,40 @@ module GeneralUtility
 				merge_node.setCommitId(cur_id)
 				merge_node.setCommitMsg('Merged ' + rh_s.currPath + ' to ' + rh_t.currPath)
 				merge_node.setState(3)
+				merge_node.next = nil
+				while (rh_s.tail.prev != nil)
+					if (rh_s.tail.getCommidId() == common.getCommidId())
+						break
+					end
+					rh_s.tail = rh_s.tail.prev
+				end
+				while (rh_t.tail.prev != nil)
+					if (rh_t.tail.getCommidId() == common.getCommidId())
+						break
+					end
+					rh_t.tail = rh_t.tail.prev
+				end
+				rh_t.tail.next = merge_node
+				rh_t.tail.next.prev = rh_t.tail
+				rh_t.tail = rh_t.tail.next
+				rh_s.tail.next = merge_node
+				rh_s.tail.next.prev = rh_s.tail
+				rh_s.tail = rh_s.tail.next
 
+				src_file_list = list_files(rh_s.currPath + $repo_folder)
+				target_file_list = list_files(rh_t.currPath + $repo_folder)
 
+				if src_file_list.include? 'revision_history_file' && target_file_list.include? 'revision_history_file'
+					file_list_s_t = src_file_list - target_file_list
+					file_list_t_s = target_file_list - src_file_list
+					file_list_s_t.each(|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder))
+					file_list_t_s.each(|f| FileSystem.cpy(rh_t.currPath + $repo_folder + f, rh_s.currPath + $repo_folder)
+				else
+					raise 'source or target revision history is corrupted'
+				end
+
+				rh_t.rh2Text()
+				rh_s.rh2Text()
 
 			end
 			return -1
