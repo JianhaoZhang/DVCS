@@ -107,12 +107,8 @@ module FileSystem
 	end
 
 	def FileSystem.getHash(pth)
-		if File.file?(path)
-			Digest::SHA1.hexdigest "#{pth}"
-		else
-			puts "no such a file"
-			0
-		end
+		sha512 = Digest::SHA512.file "#{pth}"
+    	sha512.hexdigest
 	end
 
 	def FileSystem.delete(pth)

@@ -85,7 +85,7 @@ class RevisionHistory
         end
     end
 
-    def addFile(path)
+    def add(path)
         if @temp.nil?
             @temp = RevisionNode.new()
             if !@tail.nil?
@@ -108,9 +108,10 @@ class RevisionHistory
         else
             @temp.setState(RevisionState::INITIALIZED)
         end
+        return 0
     end
 
-    def removeFile(path)
+    def delete(path)
         if @temp.nil?
             @temp = RevisionNode.new()
             if !@head.nil?
@@ -123,6 +124,7 @@ class RevisionHistory
         else
             @temp.setState(RevisionState::INITIALIZED)
         end
+        return 0
     end
 
     def diff(commitId1, commitId2)
