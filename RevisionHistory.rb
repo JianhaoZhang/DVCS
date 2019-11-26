@@ -105,7 +105,7 @@ class RevisionHistory
 
         if @hashCount[hash].nil?
             @hashCount[hash] = 1
-            FileSystem.cpy(@currPath + path, @currPath + @PATH_PREFIX + hash)
+            FileSystem.cpy(@currPath + "/" + path, @currPath + @PATH_PREFIX + hash)
         else
             @hashCount[hash] += 1
         end
@@ -244,7 +244,7 @@ class RevisionHistory
                 if fileHash2[pth].nil?
                     deleted << pth
                 elsif fileHash1[pth] != fileHash2[pth]
-                    changed << pth
+                    modified << pth
                 end
             end
             fileHash2.each do |pth, hash|
