@@ -78,7 +78,9 @@ module FileSystem
 	end
 
 	def FileSystem.getHash(pth)
-		Digest::SHA1.hexdigest "#{pth}"
+		sha512 = Digest::SHA512.file "#{pth}"
+    puts sha512.hexdigest
+    sha512.hexdigest
 	end
 
 	def FileSystem.delete(pth)
