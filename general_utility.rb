@@ -2,7 +2,7 @@ require_relative 'RevisionHistory.rb'
 require_relative 'RevisionNode.rb'
 require_relative 'file_system.rb'
 
-$repo_folder = '/dvcs/'
+$repo_folder = '/.dvcs/'
 
 module GeneralUtility
 
