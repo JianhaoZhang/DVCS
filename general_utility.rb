@@ -51,9 +51,9 @@ module GeneralUtility
 			src_file_list = list_files(rh_s.currPath + $repo_folder)
 			target_file_list = list_files(rh_t.currPath + $repo_folder)
 
-			if src_file_list.include? 'revision_history_file' && target_file_list.include? 'revision_history_file'
+			if src_file_list.include?('revision_history_file') && target_file_list.include?('revision_history_file')
 				file_list = src_file_list - target_file_list
-				file_list.each(|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder))
+				file_list.each{|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder)}
 			else
 				raise 'source or target revision history is corrupted'
 			end
@@ -182,11 +182,11 @@ module GeneralUtility
 				src_file_list = list_files(rh_s.currPath + $repo_folder)
 				target_file_list = list_files(rh_t.currPath + $repo_folder)
 
-				if src_file_list.include? 'revision_history_file' && target_file_list.include? 'revision_history_file'
+				if src_file_list.include?('revision_history_file') && target_file_list.include?('revision_history_file')
 					file_list_s_t = src_file_list - target_file_list
 					file_list_t_s = target_file_list - src_file_list
-					file_list_s_t.each(|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder))
-					file_list_t_s.each(|f| FileSystem.cpy(rh_t.currPath + $repo_folder + f, rh_s.currPath + $repo_folder)
+					file_list_s_t.each{|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder)}
+					file_list_t_s.each{|f| FileSystem.cpy(rh_t.currPath + $repo_folder + f, rh_s.currPath + $repo_folder)}
 				else
 					raise 'source or target revision history is corrupted'
 				end
