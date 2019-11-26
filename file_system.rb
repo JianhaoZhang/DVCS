@@ -16,7 +16,7 @@ module FileSystem
 	end
 
 	def FileSystem.clone(pth)
-		if Dir.entries("#{pth}").select {|entry| File.directory? entry}.include? '.dvcs'
+		if Dir.entries("#{pth}").select {|entry| File.directory? "#{pth}/#{entry}"}.include? '.dvcs'
 			FileUtils.cp_r "#{pth}", './'
 			0
 		else
