@@ -98,7 +98,7 @@ class Test_p1 < Minitest::Test
       puts rh.diff(1, 1)
       puts "end print"
       assert rh.diff(1, 1) == [nil, nil, nil, nil], "Expected No Changes"
-      assert "" != rh.diff(1, 2), "Expected Changes"
+      assert [nil, nil, nil, nil] != rh.diff(1, 2), "Expected Changes"
       
     end
   end
