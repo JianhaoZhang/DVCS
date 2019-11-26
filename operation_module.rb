@@ -1,11 +1,11 @@
-require 'File_System'
-require 'Revision_History'
-require 'General_Utility'
+require_relative 'file_system.rb'
+require_relative 'RevisionHistory.rb'
+require_relative 'general_utility.rb'
 
 module Operation
     def Operation_init()
         begin
-            if init_repository()>=0 and init_rh()>=0
+            if FileSystem.init()>=0
                 return 0;
             else
                 return 1;
@@ -18,7 +18,7 @@ module Operation
 
     def Operation_clone(pth)
         begin
-            if clone(pth)>=0
+            if FileSystem.clone(pth)>=0
                 return 0;
             else
                 return 1;
@@ -44,7 +44,7 @@ module Operation
 
     def Operation_remove(pth)
         begin
-            if delete(pth)>=0
+            if FileSystem.delete(pth)>=0
                 return 0;
             else
                 return 1;
@@ -79,7 +79,7 @@ module Operation
 
     def Operation_diff(rev1,rev2)
         begin
-            l=diff(rev1,rev2);
+            l=FileSystem.diff(rev1,rev2);
             p l
             return 0;
         rescue StandardError => e

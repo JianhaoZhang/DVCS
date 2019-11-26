@@ -1,4 +1,4 @@
-# require 'Operation'
+require_relative 'operation_module.rb'
 module Parser
 
 def prompt(sig)
