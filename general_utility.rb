@@ -1,4 +1,5 @@
 require_relative 'RevisionHistory.rb'
+require_relative 'RevisionNode.rb'
 require_relative 'file_system.rb'
 
 $repo_folder = '/dvcs/'
@@ -84,6 +85,11 @@ module GeneralUtility
 			tgt_modifications = tgt_temp[0]
 			tgt_additions = tgt_temp[1]
 
+			all_deletions = []
+			for deletion in (src_deletions + tgt_deletions)
+				all_deletions << deletion[0]
+			end
+
 			merge_conflicts = []
 
 			for mod_s in src_modifications
@@ -95,6 +101,17 @@ module GeneralUtility
 							end
 						else
 							raise 'fatal logic problem with common ancestor'
+						end
+					end
+				end
+			end
+
+			for add_s in src_additions
+				for add_t in tgt_additions
+					if add_s[0] == add_t[0]
+						if add_s[1] != add_t[1]
+							merge_conflicts << [add_s[0], 'addition', add_s[1], add_t[1]]
+						else
 						end
 					end
 				end
@@ -113,7 +130,7 @@ module GeneralUtility
 					input = gets
 					if (input.strip.downcase == 'y')
 						answered = true
-
+						puts 'not supported yet, merge terminated'
 					elsif (input.strip.downcase == 'n')
 						answered = true
 						puts 'merge terminated by user'
@@ -121,9 +138,41 @@ module GeneralUtility
 						puts 'input not recognized, merge terminated'
 					end
 				end
+			else
+				merge_node = RevisionNode.new()
+				merge_node = common
+				merge_node.setCommitId(0)
+				common_file_hash = merge_node.getFileHash()
+				h_add_s = Hash[*src_additions.flatten]
+				h_add_t = Hash[*tgt_additions.flatten]
+				h_mod_s = Hash[*retrieve_modification(src_modifications).flatten]
+				h_mod_t = Hash[*retrieve_modification(tgt_modifications).flatten]
+				common_file_hash.merge(h_add_s)
+				common_file_hash.merge(h_add_t)
+				common_file_hash.merge(h_mod_s)
+				common_file_hash.merge(h_mod_t)
+				for deletion in all_deletions
+					common_file_hash.delete(deletion)
+				end
+				merge_node.setFileHash(common_file_hash)
+				cur_id = merge_node.getCommidId() + 1
+				merge_node.setCommitId(cur_id)
+				merge_node.setCommitMsg('Merged ' + rh_s.currPath + ' to ' + rh_t.currPath)
+				merge_node.setState(3)
+
+
+
 			end
 			return -1
 		end
+	end
+
+	def retrieve_modification(modifications)
+		result = []
+		for i in modifications
+			result << [i[0], i[2]]
+		end
+		return result
 	end
 
 	def split_add_mod(changes)
