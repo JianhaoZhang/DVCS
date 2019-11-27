@@ -25,8 +25,9 @@ class Test_p1 < Minitest::Test
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
       assert_equal "Revision history is empty.", rh.log()
-      rh.add("new.txt")
+      
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       rh.setCommitMsg("Commit 1\nSecond Line")
       rh.commit()
       puts rh.log()
@@ -58,8 +59,9 @@ class Test_p1 < Minitest::Test
   def test_getfile
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
+      
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       original_file =  File.read("new.txt")
       rh.setCommitMsg("Commit 1")
       rh.commit()
@@ -75,15 +77,16 @@ class Test_p1 < Minitest::Test
       #puts rh.log()
       
       f = rh.getFile("new.txt", 1)
-      assert_equal original_file, f
+      assert_equal original_file, f.read()
     end
   end
   
   def test_diff
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
+      
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       File.open("a.txt", "w") {|f| f.write("a.txt")}
       rh.add("a.txt")
       rh.commit()
@@ -107,8 +110,9 @@ class Test_p1 < Minitest::Test
     
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
+      
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       File.open("b.txt", "w") {|f| f.write("File b")}
       rh.add("b.txt")
       
@@ -132,8 +136,9 @@ class Test_p1 < Minitest::Test
   def test_checkout
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
+      
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       original_file =  File.read("new.txt")
       rh.setCommitMsg("Commit 1")
       rh.commit()
