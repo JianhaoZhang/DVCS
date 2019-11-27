@@ -17,6 +17,9 @@ class Test_p1 < Minitest::Test
     if Dir.exist?("Project")
       system("rm -r Project")
     end
+    if Dir.exist?("Temp")
+      system("rm -r Temp")
+    end
     system("mkdir Project \n cd Project \n touch new.txt\n")
     system("mkdir Temp")
   end
@@ -31,6 +34,7 @@ class Test_p1 < Minitest::Test
       File.open("new.txt", "w"){|f| f.write("Contents of the file")}
       rh.add("new.txt")
       rh.commit()
+      rh.rh2Text()
     end
     Dir.chdir("Temp") do
       FileSystem.clone("../Project")
@@ -40,6 +44,7 @@ class Test_p1 < Minitest::Test
       File.open("new.txt", "w"){|f| f.write("Contents of the file after and edit was made")}
       rh.add("new.txt")
       rh.commit()
+      rh.rh2Text()
       
       assert_raises StandardError do
         gu.push("../Temp")
@@ -62,6 +67,7 @@ class Test_p1 < Minitest::Test
       File.open("new.txt", "w"){|f| f.write("Contents of the file")}
       rh.add("new.txt")
       rh.commit()
+      rh.rh2Text()
     end
     Dir.chdir("Temp") do
       FileSystem.clone("../Project")
@@ -71,6 +77,7 @@ class Test_p1 < Minitest::Test
       File.open("new.txt", "w"){|f| f.write("Contents of the file after and edit was made")}
       rh.add("new.txt")
       rh.commit()
+      rh.rh2Text()
     end
     
     Dir.chdir("Temp/Project") do
@@ -95,6 +102,7 @@ class Test_p1 < Minitest::Test
       File.open("new.txt", "w"){|f| f.write("Contents of the file")}
       rh.add("new.txt")
       rh.commit()
+      rh.rh2Text()
     end
     Dir.chdir("Temp") do
       FileSystem.clone("../Project")
@@ -103,6 +111,7 @@ class Test_p1 < Minitest::Test
         File.open("a.txt", "w"){|f| f.write("contents of file a.txt")}
         rh2.add("a.txt")
         rh2.commit()
+        rh.rh2Text()
       end
     end
     
@@ -110,6 +119,7 @@ class Test_p1 < Minitest::Test
       File.open("b.txt", "w") {|f| f.write("Contents of file b.txt")}
       rh.add("b.txt")
       rh.commit()
+      rh.rh2Text()
       #pull to force an implicit merge
       gu.pull("../Temp/Project")
       output, status = Open3.capture2("diff a.txt ../Temp/Project/a.txt")

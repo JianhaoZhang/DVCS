@@ -12,7 +12,6 @@ module GeneralUtility
 			return rh
 		else
 			raise 'target directory does not exist'
-			return nil
 		end
 	end
 
@@ -35,15 +34,24 @@ module GeneralUtility
 		end
 	end
 
+	def write_back_list(hash_invert, hashcodes)
+		result = []
+		for h in hashcodes
+			result << hash_invert[h]
+		end
+		return result
+	end
+
 	def list_files(path)
 		return Dir.entries(path).select {|f| !File.directory? f}
 	end
 
 	def merge(rh_s, rh_t, common)
-		if (common.getCommitId() == rh_t.tail.getCommitId())
+		if (common.next != nil && common.getCommitId() == rh_t.tail.getCommitId())
 			#fast-forward merge
 			rh_t.tail.next = common.next
 			rh_t.tail.next.prev = rh_t.tail
+			
 
 			while (rh_t.tail.next != nil)
 				rh_t.tail = rh_t.tail.next
@@ -55,6 +63,7 @@ module GeneralUtility
 			if src_file_list.include?('revision_history_file') && target_file_list.include?('revision_history_file')
 				file_list = src_file_list - target_file_list
 				file_list.each{|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder)}
+				#wbl = write_back_list(rh_s.getFileHash)
 			else
 				raise 'source or target revision history is corrupted'
 			end
@@ -62,6 +71,9 @@ module GeneralUtility
 			rh_t.rh2Text()
 
 			return 1
+		elsif (common.next == nil && common.getCommitId() == rh_t.tail.getCommitId())
+			puts 'Repositories are identical, no need to push/pull'
+			return 0
 		else
 			#3-way merge
 			cursor = rh_t.tail
@@ -195,7 +207,7 @@ module GeneralUtility
 				rh_s.rh2Text()
 
 			end
-			return -1
+			return 2
 		end
 	end
 
