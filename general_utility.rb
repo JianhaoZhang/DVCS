@@ -19,10 +19,10 @@ module GeneralUtility
 	def lca(rh_s, rh_t)
 		tree_s = rh_s.head
 		tree_t = rh_t.head
-		if (tree_s.getCommitID() == tree_t.getCommitID())
+		if (tree_s.getCommitId() == tree_t.getCommitId())
 			identical_node = nil
 			while (tree_s != nil && tree_t != nil)
-				if (tree_s.getCommitID() == tree_t.getCommitID())
+				if (tree_s.getCommitId() == tree_t.getCommitId())
 					identical_node = tree_s
 				end
 				tree_s = tree_s.next
@@ -40,7 +40,7 @@ module GeneralUtility
 	end
 
 	def merge(rh_s, rh_t, common)
-		if (common.getCommitID() == rh_t.tail.getCommitID())
+		if (common.getCommitId() == rh_t.tail.getCommitId())
 			#fast-forward merge
 			rh_t.tail.next = common.next
 			rh_t.tail.next.prev = rh_t.tail
@@ -65,7 +65,7 @@ module GeneralUtility
 		else
 			#3-way merge
 			cursor = rh_t.tail
-			while (cursor.getCommitID() != common.getCommitID())
+			while (cursor.getCommitId() != common.getCommitId())
 				cursor = cursor.prev
 			end
 

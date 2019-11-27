@@ -30,15 +30,15 @@ module FileSystem
 			open(File.join("./.dvcs", "revision_history_file"), "w") { |f|
 	  			# l_strings.each { |element| f.puts(element) }
 	  			# if l_strings.instance_of? String
-				f.puts(l_strings)
+				f.write(l_strings)
   		# 		else
   		# 			l_strings.each {|e| f.puts(e)}
 				# end
 			}
-			1
+			return 1
 		else
 			puts "no revision history file!"
-			0
+			return 0
 		end
 	end
 
