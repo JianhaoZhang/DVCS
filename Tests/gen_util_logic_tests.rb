@@ -68,6 +68,13 @@ class Test_p1 < Minitest::Test
   end
   
   def test_get_conflicts
+  	gu = GU.new()
+  	src_additions = gu.get_additions(@lca_hashes, @src_hashes)
+    tgt_additions = gu.get_additions(@lca_hashes, @tgt_hashes)
+    src_modifications = gu.get_modifications(@lca_hashes, @src_hashes)
+    tgt_modifications = gu.get_modifications(@lca_hashes, @tgt_hashes)
+    assert_equal gu.get_conflicts(src_modifications, tgt_modifications, src_additions, tgt_additions),
+    	[["Bool.hs", "7c6763668e3b5b3f2632d614c232339513ff77c5", "2c004cb28c2333737829ae13b702ce50f1bfe0ae", "51d2f9e5a5322b166b201051eb4f84aead1217e5"], ["Whale.hs", "addition", "33650303a24bbbd587edc44c55e87631bd64e32a", "e706cf7f19a36d29949060accf5f558c0cb04aaa"]]
     
   end
   
