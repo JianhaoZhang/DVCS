@@ -1,0 +1,12 @@
+General Notes About the tests and the current state of the program
+
+The program is not currently runnable. Most of the back end however works. Meaning that the implemented methods for merge, push,
+and pull and the structure for the revisions and meta data are all solid. There are a few little bugs in there but overall
+it's working relatively well. The program doesn't work due to the frontend currently not working. Meaning our parser and
+operations(general control) modules are not currently functional. 
+
+In terms of runnable tests, the test files for the revision history, file_system, and general_utility modules all should run. 
+There are a few small issues there that due to the time constraints we weren't able to flush out. But it mostly works. The Cumulative Tests
+file will definitely not run. The parser and operations test file essentially contains no relevantly programed tests so far. Most 
+of them are trivial but they require some amount of knowledge of how the methods are implemented in order to stub the responses.
+Since the methods aren't working at the moment, I dind't program the tests out.
