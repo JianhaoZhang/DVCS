@@ -46,6 +46,63 @@ module GeneralUtility
 		return Dir.entries(path).select {|f| !File.directory? f}
 	end
 
+	def get_add_mod(hash1, hash2)
+		changes = hash2.to_a - hash1.to_a
+		puts changes
+		modifications = []
+		additions = []
+		mod_ruler = Array.new(changes.length, false)
+		for i in 0..changes.length
+			anchor = changes[i][0]
+			for j in (i+1)..changes.length
+				if anchor == changes[j][0]
+					modifications << [anchor, changes[i][1], changes[j][1]]
+					mod_ruler[i] = true
+					mod_ruler[j] = true
+				end
+			end
+			if !mod_ruler[i]
+				additions << anchor
+			end
+		end	
+		return additions, modifications
+	end
+
+	def get_deletions(hash1, hash2)
+		h1 = hash1.keys
+		h2 = hash2.keys
+		return (h1 - h2) - (h2 - h1)
+	end
+
+	def get_conflicts(src_modifications, tgt_modifications, src_additions, tgt_additions)
+		merge_conflicts = []
+		for mod_s in src_modifications
+			for mod_t in tgt_modifications
+				if mod_s[0] == mod_t[0]
+					if mod_s[1] == mod_t[1]
+						if mod_s[2] != mod_t[2]
+							merge_conflicts << [mod_s[0], mod_s[1], mod_s[2], mod_t[2]]
+						end
+					else
+						raise 'fatal logic problem with common ancestor'
+					end
+				end
+			end
+		end
+		for add_s in src_additions
+			for add_t in tgt_additions
+				if add_s[0] == add_t[0]
+					if add_s[1] != add_t[1]
+						merge_conflicts << [add_s[0], 'addition', add_s[1], add_t[1]]
+					else
+					end
+				end
+			end
+		end
+
+		return merge_conflicts.uniq
+	end
+
 	def merge(rh_s, rh_t, common)
 		if (common.next != nil && common.getCommitId() == rh_t.tail.getCommitId())
 			#fast-forward merge
@@ -74,69 +131,32 @@ module GeneralUtility
 		elsif (common.next == nil && common.getCommitId() == rh_t.tail.getCommitId())
 			puts 'Repositories are identical, no need to push/pull'
 			return 0
-		else
+		elsif (common.next != nil && common.getCommitId() != rh_t.tail.getCommitId())
 			#3-way merge
 			cursor = rh_t.tail
 			while (cursor.getCommitId() != common.getCommitId())
 				cursor = cursor.prev
 			end
 
-			lca_hashes = common.getFileHash().to_a
-			src_hashes = rh_s.tail.getFileHash().to_a
-			target_hashes = rh_t.tail.getFileHash().to_a
+			lca_hashes = common.getFileHash()
+			src_hashes = rh_s.tail.getFileHash()
+			target_hashes = rh_t.tail.getFileHash()
 
-			src_changes = src_hashes - lca_hashes
-			src_deletions = (lca_hashes - src_hashes) - src_changes
-			tgt_changes = target_hashes - lca_hashes
-			tgt_deletions = (lca_hashes - target_hashes) - tgt_changes
+			src_deletions = get_deletions(lca_hashes, src_hashes)
+			tgt_deletions = get_deletions(lca_hashes, target_hashes)
 
-			src_temp = split_add_mod(src_changes)
-			src_modifications = src_temp[0]
-			src_additions = src_temp[1]
+			src_additions, src_modifications = get_add_mod(lca_hashes, src_hashes)
+			tgt_additions, tgt_modifications = get_add_mod(lca_hashes, target_hashes)
 
-			tgt_temp = split_add_mod(tgt_changes)
-			tgt_modifications = tgt_temp[0]
-			tgt_additions = tgt_temp[1]
+			all_deletions = src_deletions + tgt_deletions
 
-			all_deletions = []
-			for deletion in (src_deletions + tgt_deletions)
-				all_deletions << deletion[0]
-			end
-
-			merge_conflicts = []
-
-			for mod_s in src_modifications
-				for mod_t in tgt_modifications
-					if mod_s[0] == mod_t[0]
-						if mod_s[1] == mod_t[1]
-							if mod_s[2] != mod_t[2]
-								merge_conflicts << [mod_s[0], mod_s[1], mod_s[2], mod_t[2]]
-							end
-						else
-							raise 'fatal logic problem with common ancestor'
-						end
-					end
-				end
-			end
-
-			for add_s in src_additions
-				for add_t in tgt_additions
-					if add_s[0] == add_t[0]
-						if add_s[1] != add_t[1]
-							merge_conflicts << [add_s[0], 'addition', add_s[1], add_t[1]]
-						else
-						end
-					end
-				end
-			end
-
-			merge_conflicts = merge_conflicts.uniq
+			merge_conflicts = get_conflicts(src_modifications, tgt_modifications, src_additions, tgt_additions)
 
 			for i in merge_conflicts
 				puts i
 			end
 
-			if merge_conflicts != nil
+			if merge_conflicts.length > 0
 				answered = false
 				while (!answered)
 					puts 'Merge conflict happens, merge forcibly? (Y/N)'
@@ -157,8 +177,8 @@ module GeneralUtility
 				common_file_hash = merge_node.getFileHash()
 				h_add_s = Hash[*src_additions.flatten]
 				h_add_t = Hash[*tgt_additions.flatten]
-				h_mod_s = Hash[*retrieve_modification(src_modifications).flatten]
-				h_mod_t = Hash[*retrieve_modification(tgt_modifications).flatten]
+				h_mod_s = Hash[*strip_modification(src_modifications).flatten]
+				h_mod_t = Hash[*strip_modification(tgt_modifications).flatten]
 				common_file_hash.merge(h_add_s)
 				common_file_hash.merge(h_add_t)
 				common_file_hash.merge(h_mod_s)
@@ -208,37 +228,17 @@ module GeneralUtility
 
 			end
 			return 2
+		else
+			raise 'impossible lca, source, target tuples'
+			return -1
 		end
 	end
 
-	def retrieve_modification(modifications)
+	def strip_modification(modifications)
 		result = []
 		for i in modifications
 			result << [i[0], i[2]]
 		end
-		return result
-	end
-
-	def split_add_mod(changes)
-		result = []
-		modifications = []
-		additions = []
-		mod_ruler = Array.new(changes.length, false)
-		for i in 0..changes.length
-			anchor = changes[i][0]
-			for j in (i+1)..changes.length
-				if anchor == changes[j][0]
-					modifications << [anchor, changes[i][1], changes[j][1]]
-					mod_ruler[i] = true
-					mod_ruler[j] = true
-				end
-			end
-			if !mod_ruler[i]
-				additions << anchor
-			end
-		end	
-		result << modifications
-		result << additions
 		return result
 	end
 
