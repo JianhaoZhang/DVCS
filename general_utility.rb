@@ -46,26 +46,25 @@ module GeneralUtility
 		return Dir.entries(path).select {|f| !File.directory? f}
 	end
 
-	def get_add_mod(hash1, hash2)
-		changes = hash2.to_a - hash1.to_a
-		puts changes
+	def get_additions(hash1, hash2)
+		added = hash2.keys - hash1.keys
+		return hash2.select {|k,v| added.include?(k)}.to_a
+	end
+
+	def get_modifications(hash1, hash2)
+		h1 = hash1.to_a
+		h2 = hash2.to_a
 		modifications = []
-		additions = []
-		mod_ruler = Array.new(changes.length, false)
-		for i in 0..changes.length
-			anchor = changes[i][0]
-			for j in (i+1)..changes.length
-				if anchor == changes[j][0]
-					modifications << [anchor, changes[i][1], changes[j][1]]
-					mod_ruler[i] = true
-					mod_ruler[j] = true
+		for i in 0..h1.length-1
+			for j in 0..h2.length-1
+				if h1[i][0] == h2[j][0] && h1[i][1] != h2[j][1]
+					modifications << [h1[i][0], h1[i][1], h2[j][1]]
 				end
+				j+=1
 			end
-			if !mod_ruler[i]
-				additions << anchor
-			end
+			i+=1
 		end	
-		return additions, modifications
+		return modifications
 	end
 
 	def get_deletions(hash1, hash2)
@@ -145,8 +144,10 @@ module GeneralUtility
 			src_deletions = get_deletions(lca_hashes, src_hashes)
 			tgt_deletions = get_deletions(lca_hashes, target_hashes)
 
-			src_additions, src_modifications = get_add_mod(lca_hashes, src_hashes)
-			tgt_additions, tgt_modifications = get_add_mod(lca_hashes, target_hashes)
+			src_additions = get_additions(lca_hashes, src_hashes)
+			src_modifications = get_modifications(lca_hashes, src_hashes)
+			tgt_additions = get_additions(lca_hashes, src_hashes)
+			tgt_modifications = get_modifications(lca_hashes, target_hashes)
 
 			all_deletions = src_deletions + tgt_deletions
 
