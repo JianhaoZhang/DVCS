@@ -18,6 +18,7 @@ class Test_p1 < Minitest::Test
     
   end
   def test_init
+    skip
     #successful_init
     Operation.stub_any_instance(:Operation_init, 1) do
       cmds = ["clone", ""]
@@ -29,6 +30,9 @@ class Test_p1 < Minitest::Test
     #  puts "test"
     #end 
   end
+  
+  #Todo test init, clone, diff, log, push, pull etc. Test that the error responses will be relevant and correct when given corresponding outputs
+  #from the other method (stub method responses to test this)
 end
 output, status = Open3.capture2("ruby t.rb something")
 puts("Program Ran")
