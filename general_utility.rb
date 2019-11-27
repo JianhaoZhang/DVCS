@@ -8,7 +8,8 @@ module GeneralUtility
 
 	def get_repo(path)
 		if Dir.exist?(path)
-			return RevisionHistory.new(path, false)
+			rh = RevisionHistory.new(path, false)
+			return rh
 		else
 			raise 'target directory does not exist'
 			return nil
@@ -18,10 +19,10 @@ module GeneralUtility
 	def lca(rh_s, rh_t)
 		tree_s = rh_s.head
 		tree_t = rh_t.head
-		if (tree_s.commitID == tree_t.commitID)
+		if (tree_s.getCommitID() == tree_t.getCommitID())
 			identical_node = nil
 			while (tree_s != nil && tree_t != nil)
-				if (tree_s.commitID == tree_t.commitID)
+				if (tree_s.getCommitID() == tree_t.getCommitID())
 					identical_node = tree_s
 				end
 				tree_s = tree_s.next
@@ -39,7 +40,7 @@ module GeneralUtility
 	end
 
 	def merge(rh_s, rh_t, common)
-		if (common.commitID = rh_t.tail.commitID)
+		if (common.getCommitID() == rh_t.tail.getCommitID())
 			#fast-forward merge
 			rh_t.tail.next = common.next
 			rh_t.tail.next.prev = rh_t.tail
@@ -64,13 +65,13 @@ module GeneralUtility
 		else
 			#3-way merge
 			cursor = rh_t.tail
-			while (cursor.commitID != common.commitID)
+			while (cursor.getCommitID() != common.getCommitID())
 				cursor = cursor.prev
 			end
 
-			lca_hashes = common.fileHash.to_a
-			src_hashes = rh_s.tail.fileHash.to_a
-			target_hashes = rh_t.tail.fileHash.to_a
+			lca_hashes = common.getFileHash().to_a
+			src_hashes = rh_s.tail.getFileHash().to_a
+			target_hashes = rh_t.tail.getFileHash().to_a
 
 			src_changes = src_hashes - lca_hashes
 			src_deletions = (lca_hashes - src_hashes) - src_changes
@@ -141,7 +142,6 @@ module GeneralUtility
 			else
 				merge_node = RevisionNode.new()
 				merge_node = common
-				merge_node.setCommitId(0)
 				common_file_hash = merge_node.getFileHash()
 				h_add_s = Hash[*src_additions.flatten]
 				h_add_t = Hash[*tgt_additions.flatten]

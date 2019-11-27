@@ -6,6 +6,14 @@ require_relative "file_system"
 class RevisionHistory
     include FileSystem
 
+    attr_accessor :head
+    attr_accessor :tail
+    attr_accessor :hashCount
+    attr_accessor :currPath
+
+    attr_reader :head
+    attr_reader :tail
+
     def initialize(path, init)
         @PATH_PREFIX = ".dvcs/"
 

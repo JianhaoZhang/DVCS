@@ -6,6 +6,11 @@ module RevisionState
 end
 
 class RevisionNode
+    attr_accessor :prev
+    attr_accessor :next
+    attr_reader :prev
+    attr_reader :next
+
     def initialize()
         @commitId = 0
         @commitMsg = ""
