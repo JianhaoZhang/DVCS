@@ -31,7 +31,7 @@ class RevisionHistory
             FileSystem.init()
         else
             # load from disk
-            text2Rh()
+            text2Rh(@currPath)
 
         end
     end
@@ -40,8 +40,8 @@ class RevisionHistory
         return @hashCount
     end
 
-    def text2Rh()
-        text = FileSystem.get_rh()
+    def text2Rh(path = './')
+        text = FileSystem.get_rh(path)
         @temp = nil
         commitMsg = ""
         isTemp = false
@@ -108,7 +108,7 @@ class RevisionHistory
             if !@temp.nil? && @temp.getState != RevisionState::INITIALIZED
                 str += "+ " + @temp.to_s
             end
-            FileSystem.store_rh(str)
+            FileSystem.store_rh(str, @currPath)
         end
     end
 

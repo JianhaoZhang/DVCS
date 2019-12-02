@@ -119,7 +119,8 @@ module GeneralUtility
 			if src_file_list.include?('revision_history_file') && target_file_list.include?('revision_history_file')
 				file_list = src_file_list - target_file_list
 				file_list.each{|f| FileSystem.cpy(rh_s.currPath + $repo_folder + f, rh_t.currPath + $repo_folder)}
-				#wbl = write_back_list(rh_s.getFileHash)
+				clear_file_list = list_files(rh_s.currPath)
+				clear_file_list.each{|f| FileSystem.cpy(rh_s.currPath + f, rh_t.currPath)}
 			else
 				raise 'source or target revision history is corrupted'
 			end

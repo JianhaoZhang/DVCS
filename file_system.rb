@@ -25,9 +25,9 @@ module FileSystem
 		end
 	end
 
-	def FileSystem.store_rh(l_strings)
-		if File.file?(File.join("./.dvcs", "revision_history_file"))
-			open(File.join("./.dvcs", "revision_history_file"), "w") { |f|
+	def FileSystem.store_rh(l_strings, path = './')
+		if File.file?(File.join(path + ".dvcs", "revision_history_file"))
+			open(File.join(path + ".dvcs", "revision_history_file"), "w") { |f|
 	  			# l_strings.each { |element| f.puts(element) }
 	  			# if l_strings.instance_of? String
 				f.puts(l_strings)
@@ -37,21 +37,21 @@ module FileSystem
 			}
 			return 1
 		else
-			puts "no revision history file!"
+			puts "no revision history file! (s)"
 			return 0
 		end
 	end
 
-	def FileSystem.get_rh()
-		if File.file?(File.join("./.dvcs", "revision_history_file"))
+	def FileSystem.get_rh(path = './')
+		if File.file?(File.join(path + ".dvcs", "revision_history_file"))
 			text = []
-			File.foreach(File.join("./.dvcs", "revision_history_file")) do |line|
+			File.foreach(File.join(path + ".dvcs", "revision_history_file")) do |line|
 			  text << line.strip
 			end
 
 			text
 		else
-			puts "no revision history file!"
+			puts "no revision history file! (g)"
 			0
 		end
 	end
