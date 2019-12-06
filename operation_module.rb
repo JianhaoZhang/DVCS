@@ -3,6 +3,8 @@ require_relative 'RevisionHistory.rb'
 require_relative 'general_utility.rb'
 
 module Operation
+    include FileSystem
+    include GeneralUtility
     def Operation_init()
         begin
             if FileSystem.init()>=0
@@ -29,9 +31,10 @@ module Operation
         end
     end
 
-    def Operation_add(pth)
+    def Operation_add(pth,rh)
         begin
-            if add(pth)>=0
+            result=rh.add(pth)
+            if result>=0
                 return 0;
             else
                 return 1;
@@ -55,9 +58,9 @@ module Operation
         end
     end
 
-    def Operation_status()
+    def Operation_status(rh)
         begin
-            p status()
+            p rh.status()
             return 0;
         rescue StandardError => e
             puts e.message
@@ -65,9 +68,9 @@ module Operation
         end
     end
 
-    def Operation_heads()
+    def Operation_heads(rh)
         begin
-            l= heads();
+            l= rh.heads();
             puts "commit id is %s" % [l[0]]
             puts "commit message is %s" % [l[1]]
             return 0;
@@ -88,9 +91,9 @@ module Operation
         end
     end
 
-    def Operation_cat(pth,rev_num)
+    def Operation_cat(pth,rev_num,rh)
         begin
-            file=getFile(pth,rev_num)
+            file=rh.getFile(pth,rev_num)
             file.each_line do |line|
                 puts line
             end
@@ -101,9 +104,10 @@ module Operation
         end
     end
 
-    def Operation_checkout(commitid)
+    def Operation_checkout(commitid,rh)
         begin
-            if checkout(commitid)>=0
+            result=rh.checkout(commitid)
+            if result>=0
                 return 0;
             else
                 return 1;
@@ -114,9 +118,11 @@ module Operation
         end
     end
 
-    def Operation_commit(commit_mes)
+    def Operation_commit(commit_mes,rh)
+        rh.setCommitMsg(commit_mes)
         begin
-            if commit(commit_mes)>=0
+            result=rh.commit()[0]
+            if result>=0
                 return 0;
             else
                 return 1;
@@ -127,9 +133,9 @@ module Operation
         end
     end
 
-    def Operation_log()
+    def Operation_log(rh)
         begin
-            p log()
+            p rh.log()
             return 0;
         rescue StandardError => e
             puts e.message
