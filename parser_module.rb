@@ -10,14 +10,15 @@ def prompt(sig)
     end
 end
 
-def parse(args,rh)
+def parse(args)
+    p args[0]
     case args[0]
         when "init"
             prompt(Operation_init())
         when "clone"
             prompt(Operation_clone(args[1]))
         when "add"
-            prompt(Operation_add(args[1],rh))
+            prompt(Operation_add(args[1]))
         when "remove"
             prompt(Operation_remove(args[1]))
         when "status"
@@ -27,13 +28,13 @@ def parse(args,rh)
         when "diff"
             prompt(Operation_diff(args[1],args[2]))
         when "cat"
-            prompt(Operation_cat(args[1],args[2],rh))
+            prompt(Operation_cat(args[1],args[2]))
         when "checkout"
-            prompt(Operation_checkout(args[1],rh))
+            prompt(Operation_checkout(args[1]))
         when "commit"
-            prompt(Operation_commit(args[1],rh)[0])
+            prompt(Operation_commit(args[1])[0])
         when "log"
-            prompt(Operation_log(rh))
+            prompt(Operation_log())
         when "pull"
             prompt(Operation_pull(args[1]))
         when "push"
@@ -49,10 +50,4 @@ class Mymain
 end
 
 m=Mymain.new()
-rh=RevisionHistory.new(Dir.pwd, false)
-while 1
-puts "Enter your command:\n"
-command=gets.chomp
-args=command.split()
-m.parse(args,rh)
-end
+m.parse(ARGV)

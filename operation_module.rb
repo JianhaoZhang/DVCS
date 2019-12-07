@@ -7,11 +7,9 @@ module Operation
     include GeneralUtility
     def Operation_init()
         begin
-            if FileSystem.init()>=0
-                return 0;
-            else
-                return 1;
-            end
+        rh=RevisionHistory.new(Dir.pwd, true)
+        rh.rh2Text()
+        return 0;
         rescue StandardError => e
             puts e.message
             return 1;
@@ -31,9 +29,11 @@ module Operation
         end
     end
 
-    def Operation_add(pth,rh)
+    def Operation_add(pth)
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             result=rh.add(pth)
+            rh.rh2Text()
             if result>=0
                 return 0;
             else
@@ -58,9 +58,11 @@ module Operation
         end
     end
 
-    def Operation_status(rh)
+    def Operation_status()
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             p rh.status()
+            rh.rh2Text()
             return 0;
         rescue StandardError => e
             puts e.message
@@ -68,9 +70,11 @@ module Operation
         end
     end
 
-    def Operation_heads(rh)
+    def Operation_heads()
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             l= rh.heads();
+            rh.rh2Text()
             puts "commit id is %s" % [l[0]]
             puts "commit message is %s" % [l[1]]
             return 0;
@@ -91,9 +95,11 @@ module Operation
         end
     end
 
-    def Operation_cat(pth,rev_num,rh)
+    def Operation_cat(pth,rev_num)
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             file=rh.getFile(pth,rev_num)
+            rh.rh2Text()
             file.each_line do |line|
                 puts line
             end
@@ -104,9 +110,11 @@ module Operation
         end
     end
 
-    def Operation_checkout(commitid,rh)
+    def Operation_checkout(commitid)
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             result=rh.checkout(commitid)
+            rh.rh2Text()
             if result>=0
                 return 0;
             else
@@ -118,10 +126,12 @@ module Operation
         end
     end
 
-    def Operation_commit(commit_mes,rh)
+    def Operation_commit(commit_mes)
+        rh=RevisionHistory.new(Dir.pwd, false)
         rh.setCommitMsg(commit_mes)
         begin
             result=rh.commit()[0]
+            rh.rh2Text()
             if result>=0
                 return 0;
             else
@@ -133,9 +143,11 @@ module Operation
         end
     end
 
-    def Operation_log(rh)
+    def Operation_log()
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
             p rh.log()
+            rh.rh2Text()
             return 0;
         rescue StandardError => e
             puts e.message
