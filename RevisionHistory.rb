@@ -103,13 +103,14 @@ class RevisionHistory
     end
 
     def rh2Text()
-        if !self.heads.nil?
-            str = self.log
-            if !@temp.nil? && @temp.getState != RevisionState::INITIALIZED
-                str += "+ " + @temp.to_s
-            end
-            FileSystem.store_rh(str, @currPath)
+        str = ""
+        if !self.head.nil?
+            str += self.log
         end
+        if !@temp.nil? && @temp.getState != RevisionState::INITIALIZED
+            str += "+ " + @temp.to_s
+        end
+        FileSystem.store_rh(str, @currPath)
     end
 
     def add(path)
