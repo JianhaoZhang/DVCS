@@ -1,0 +1,31 @@
+Parser Module:
+"ruby parser_module.rb init" outputs:
+1 2 3 4 5
+1 2 3 4 5
+no revision history file! (g)
+Traceback (most recent call last):
+	3: from parser_module.rb:52:in `<main>'
+	2: from parser_module.rb:52:in `new'
+	1: from /Users/brendonpon/Desktop/DVCS/RevisionHistory.rb:34:in `initialize'
+/Users/brendonpon/Desktop/DVCS/RevisionHistory.rb:48:in `text2Rh': undefined method `each_with_index' for 0:Integer (NoMethodError)
+
+Please check program logic
+
+
+Operations Module:
+
+
+init: needs to call init from the revision history module first. Don't directly call file module
+remove: currently just deletes file from directory, this is not the correct function
+diff: Should take in two different revision numbers and return diff, currently takes in file names
+
+File System Module:
+
+Revision History Module:
+
+General Utility Module:
+
+General Issues (Unknown Source):
+Calling commit from the parser module (overall program) should print the commit ID and the commit message to console so user knows what the commit id is.
+Not essential function but should be a quick fix (I'm guessing easiest fix in operation module - or parser)
+
