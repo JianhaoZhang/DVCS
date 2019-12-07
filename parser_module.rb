@@ -11,7 +11,6 @@ def prompt(sig)
 end
 
 def parse(args)
-    p args[0]
     case args[0]
         when "init"
             prompt(Operation_init())

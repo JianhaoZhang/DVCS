@@ -46,8 +46,9 @@ module Operation
     end
 
     def Operation_remove(pth)
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
-            if FileSystem.delete(pth)>=0
+            if rh.delete(pth)>=0
                 return 0;
             else
                 return 1;
@@ -85,8 +86,10 @@ module Operation
     end
 
     def Operation_diff(rev1,rev2)
+        rh=RevisionHistory.new(Dir.pwd, false)
         begin
-            l=FileSystem.diff(rev1,rev2);
+            l=rh.diff(rev1,rev2);
+            rh.rh2Text()
             p l
             return 0;
         rescue StandardError => e
@@ -130,7 +133,10 @@ module Operation
         rh=RevisionHistory.new(Dir.pwd, false)
         rh.setCommitMsg(commit_mes)
         begin
-            result=rh.commit()[0]
+            com=rh.commit()
+            puts "commit id is %s" % [com[0]]
+            puts "commit message is %s" % [com[1]]
+            result=com[0]
             rh.rh2Text()
             if result>=0
                 return 0;
