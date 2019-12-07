@@ -15,7 +15,10 @@ require_relative "../parser_module.rb"
 #load("t.rb")
 class Test_p1 < Minitest::Test
   def setup
-    
+    if Dir.exist?("Project")
+      system("rm -r Project")
+    end
+    system("mkdir Project \n cd Project \n touch new.txt\n")
   end
   def test_init
     skip
@@ -31,9 +34,19 @@ class Test_p1 < Minitest::Test
     #end 
   end
   
+  def teardown 
+    if Dir.exist?("Project")
+      system("rm -r Project")
+    end
+    if Dir.exist?("Temp")
+      system("rm -r Temp")
+    end
+   
+  end
+  
   #Todo test init, clone, diff, log, push, pull etc. Test that the error responses will be relevant and correct when given corresponding outputs
   #from the other method (stub method responses to test this)
 end
-output, status = Open3.capture2("ruby t.rb something")
-puts("Program Ran")
-puts("output is #{output}")
+#output, status = Open3.capture2("ruby t.rb something")
+#puts("Program Ran")
+#puts("output is #{output}")
