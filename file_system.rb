@@ -143,9 +143,9 @@ end
 # puts FileSystem.get_rh()[0].strip == ["nline1", "nline2", "nline3", "nline4"][0]
 # puts ["nline1", "nline2", "nline3", "nline4"]
 
-open("a.txt", "w") { |f|
-	f.puts("1 2 3 4 5")
-}
+#open("a.txt", "w") { |f|
+#	f.puts("1 2 3 4 5")
+#}
 
-puts ["1 2 3 4 5"]
-puts File.open("a.txt").to_a
+#puts ["1 2 3 4 5"]
+#puts File.open("a.txt").to_a
