@@ -1,23 +1,17 @@
 Parser Module:
-"ruby parser_module.rb init" outputs:
-1 2 3 4 5
-1 2 3 4 5
-no revision history file! (g)
-Traceback (most recent call last):
-	3: from parser_module.rb:52:in `<main>'
-	2: from parser_module.rb:52:in `new'
-	1: from /Users/brendonpon/Desktop/DVCS/RevisionHistory.rb:34:in `initialize'
-/Users/brendonpon/Desktop/DVCS/RevisionHistory.rb:48:in `text2Rh': undefined method `each_with_index' for 0:Integer (NoMethodError)
+Seems the error cases are not executing properly. Currently status will output "command succeeds" even though the method returns in an exception. Check output status of the method.
 
-Please check program logic
 
 
 Operations Module:
+Currently Log prints with a bunch of \n in the print. 
+Ex:
+"CommitID: 2\nCommit Message: \nFile Hash: {\"new.txt\"=>\"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e\"}\n\n"
+Use puts instead of p (I think the same problem occurs with diff)
+
+heads and status create a "no local variable rh exists" error
 
 
-init: needs to call init from the revision history module first. Don't directly call file module
-remove: currently just deletes file from directory, this is not the correct function
-diff: Should take in two different revision numbers and return diff, currently takes in file names
 
 File System Module:
 
@@ -26,6 +20,15 @@ Revision History Module:
 General Utility Module:
 
 General Issues (Unknown Source):
-Calling commit from the parser module (overall program) should print the commit ID and the commit message to console so user knows what the commit id is.
-Not essential function but should be a quick fix (I'm guessing easiest fix in operation module - or parser)
+Commit ID starts at 2 (not really an error just a note)
 
+Something is wrong when using revision numbers calling "diff 2 3" throws error "Invalid CommitID: 2"
+Similarly for checkout ("checkout 2" throwns "Invalid CommitID 2")
+
+Something is wrong with push/pull I'm getting "undefined method `>=' for nil:NilClass"
+	See tests "test_push", "test_pull"
+
+Also something is wrong with merge detection. I think it only checks the number of commits orsomething?
+	If I create a DVCS, clone it, edit both the original and clone then try to push or pull I get: 
+	"Repositories are identical, no need to push/pull"
+	See tests "test_pull_merge" and "test_push_merge"
