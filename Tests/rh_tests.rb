@@ -11,8 +11,8 @@ class Test_p1 < Minitest::Test
     system("mkdir Project \n cd Project \n touch new.txt\n")
     
   end
+
   def test_init_new
-    
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
       assert_equal "Revision history is empty.", rh.log()
@@ -21,7 +21,6 @@ class Test_p1 < Minitest::Test
   end
   
   def test_commit
-    
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
       assert_equal "Revision history is empty.", rh.log()
@@ -58,8 +57,8 @@ class Test_p1 < Minitest::Test
   def test_getfile
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       original_file =  File.read("new.txt")
       rh.setCommitMsg("Commit 1")
       rh.commit()
@@ -72,18 +71,22 @@ class Test_p1 < Minitest::Test
       #puts rh.status()
       rh.setCommitMsg("Commit 2")
       rh.commit()
-      #puts rh.log()
+      # puts rh.log()
       
       f = rh.getFile("new.txt", 1)
-      assert_equal original_file, f
+      file = ""
+      f.each_line do |line|
+          file += line
+      end
+      assert_equal original_file, file
     end
   end
   
   def test_diff
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       File.open("a.txt", "w") {|f| f.write("a.txt")}
       rh.add("a.txt")
       rh.commit()
@@ -104,7 +107,6 @@ class Test_p1 < Minitest::Test
   end
   
   def test_status
-    
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
       rh.add("new.txt")
@@ -132,8 +134,8 @@ class Test_p1 < Minitest::Test
   def test_checkout
     Dir.chdir("Project") do
       rh = RevisionHistory.new(Dir.pwd, true)
-      rh.add("new.txt")
       File.open("new.txt", "w") {|f| f.write("Something here")}
+      rh.add("new.txt")
       original_file =  File.read("new.txt")
       rh.setCommitMsg("Commit 1")
       rh.commit()
