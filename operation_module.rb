@@ -90,7 +90,7 @@ module Operation
         begin
             l=rh.diff(rev1,rev2);
             rh.rh2Text()
-            p l
+            puts l
             return 0;
         rescue StandardError => e
             puts e.message
@@ -152,7 +152,8 @@ module Operation
     def Operation_log()
         rh=RevisionHistory.new(Dir.pwd, false)
         begin
-            p rh.log()
+            puts rh.log()
+            puts "he"
             rh.rh2Text()
             return 0;
         rescue StandardError => e

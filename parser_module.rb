@@ -21,9 +21,9 @@ def parse(args)
         when "remove"
             prompt(Operation_remove(args[1]))
         when "status"
-            prompt(Operation_status(rh))
+            prompt(Operation_status())
         when "heads"
-            prompt(Operation_heads(rh))
+            prompt(Operation_heads())
         when "diff"
             prompt(Operation_diff(args[1],args[2]))
         when "cat"
