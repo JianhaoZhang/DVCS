@@ -8,8 +8,18 @@ end
 class RevisionNode
     attr_accessor :prev
     attr_accessor :next
+    attr_accessor :state
+    attr_accessor :fileHash
+    attr_accessor :commitId
+    attr_accessor :commitMsg
+    attr_accessor :time
     attr_reader :prev
     attr_reader :next
+    attr_reader :state
+    attr_reader :fileHash
+    attr_reader :commitId
+    attr_reader :commitMsg
+    attr_reader :time
 
     def initialize()
         @commitId = 0
@@ -18,50 +28,7 @@ class RevisionNode
         @state = RevisionState::INITIALIZED
         @prev = nil
         @next = nil
-    end
-
-    def setCommitId(id)
-        @commitId = id
-    end
-
-    def setCommitMsg(msg)
-        @commitMsg = msg
-    end
-
-    def setState(state)
-        @state = state
-    end
-
-    def setFileHash(fileHash)
-        @fileHash = fileHash
-    end
-
-    def setNext(node)
-        @next = node
-    end
-
-    def setPrev(node)
-        @prev = node
-    end
-
-    def getNext()
-        @next
-    end
-
-    def getState()
-        @state
-    end
-
-    def getFileHash()
-        @fileHash
-    end
-
-    def getCommitId()
-        @commitId
-    end
-
-    def getCommitMsg()
-        @commitMsg
+        @time = nil
     end
 
     def deleteFile(path)
@@ -86,11 +53,11 @@ class RevisionNode
 
     def each(&block)
         block.call(self)
-        self.getNext.each(&block) if self.getNext
+        self.next.each(&block) if self.next
     end
 
     def to_s
-        "CommitID: #{@commitId}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"        
+        "CommitID: #{@commitId}\nTime: #{@time}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"
     end
 
     def print

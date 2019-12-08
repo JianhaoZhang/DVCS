@@ -1,3 +1,5 @@
+require 'date'
+require 'digest/sha1'
 require_relative "RevisionNode"
 require_relative "file_system"
 
@@ -49,21 +51,21 @@ class RevisionHistory
             if e.start_with?("CommitID:") || e.start_with?("+ CommitID:")
                 @count += 1
                 if !@temp.nil?
-                    @commitMap[@temp.getCommitId()] = @temp
+                    @commitMap[@temp.commitId] = @temp
                     if !@tail.nil?
-                        @tail.setNext(@temp)
-                        @temp.setPrev(@tail)
+                        @tail.next = @temp
+                        @temp.prev = @tail
                     else
                         @head = @temp
                     end
-                    @temp.setState(RevisionState::COMMITED)
+                    @temp.state = RevisionState::COMMITED
                     @tail = @temp   
                 end 
                 @temp = RevisionNode.new()
-                @temp.setCommitId(e.split(":")[1].strip.to_i)
+                @temp.commitId = e.split(":")[1].strip
                 if e.start_with?("+ CommitID:")
                     isTemp = true
-                    @temp.setState(RevisionState::MODIFIED)
+                    @temp.state = RevisionState::MODIFIED
                 end
                 commitMsg = ""
             elsif e.start_with?("Commit Message:")
@@ -72,8 +74,12 @@ class RevisionHistory
                 else
                     commitMsg = ""
                 end
+            elsif e.start_with?("Time:")
+                @temp.time = e.split(" ")[-1]
             elsif e.start_with?("File Hash:")
-                @temp.setCommitMsg(commitMsg[1..-1])
+                # puts "Add commit msg: " + commitMsg
+                @temp.commitMsg = commitMsg[1..-1]
+                commitMsg = ""
                 e_dict = eval(e.split(":")[-1][1..-1])
                 e_dict.each do |key, value|
                     @temp.addFile(key, value)
@@ -89,14 +95,14 @@ class RevisionHistory
         end
         
         if !@temp.nil? && !isTemp
-            @commitMap[@temp.getCommitId()] = @temp
+            @commitMap[@temp.commitId] = @temp
             if !@tail.nil?
-                @tail.setNext(@temp)
-                @temp.setPrev(@tail)
+                @tail.next = @temp
+                @temp.prev = @tail
             else
                 @head = @temp
             end
-            @temp.setState(RevisionState::COMMITED)
+            @temp.state = RevisionState::COMMITED
             @tail = @temp
             @temp = nil
         end
@@ -107,7 +113,7 @@ class RevisionHistory
         if !self.head.nil?
             str += self.log
         end
-        if !@temp.nil? && @temp.getState != RevisionState::INITIALIZED
+        if !@temp.nil? && @temp.state != RevisionState::INITIALIZED
             str += "+ " + @temp.to_s
         end
         FileSystem.store_rh(str, @currPath)
@@ -117,7 +123,7 @@ class RevisionHistory
         if @temp.nil?
             @temp = RevisionNode.new()
             if !@tail.nil?
-                @temp.setFileHash(@tail.getFileHash.clone)
+                @temp.fileHash = @tail.fileHash.clone
             end
         end
 
@@ -131,10 +137,10 @@ class RevisionHistory
         else
             @hashCount[hash] += 1
         end
-        if @tail.nil? || @tail.getFileHash != @temp.getFileHash
-            @temp.setState(RevisionState::MODIFIED)
+        if @tail.nil? || @tail.fileHash != @temp.fileHash
+            @temp.state = RevisionState::MODIFIED
         else
-            @temp.setState(RevisionState::INITIALIZED)
+            @temp.state = RevisionState::INITIALIZED
         end
         return 0
     end
@@ -143,14 +149,14 @@ class RevisionHistory
         if @temp.nil?
             @temp = RevisionNode.new()
             if !@head.nil?
-                @temp.setFileHash(@tail.getFileHash.clone)
+                @temp.fileHash = @tail.fileHash.clone
             end
         end
         @temp.deleteFile(path)
-        if @tail.nil? || @tail.getFileHash != @temp.getFileHash
-            @temp.setState(RevisionState::MODIFIED)
+        if @tail.nil? || @tail.fileHash != @temp.fileHash
+            @temp.state = RevisionState::MODIFIED
         else
-            @temp.setState(RevisionState::INITIALIZED)
+            @temp.state = RevisionState::INITIALIZED
         end
         return 0
     end
@@ -163,8 +169,8 @@ class RevisionHistory
             raise "Invalid CommitID " + commitId2
         end
 
-        fileHash1 = @commitMap[commitId1].getFileHash
-        fileHash2 = @commitMap[commitId2].getFileHash
+        fileHash1 = @commitMap[commitId1].fileHash
+        fileHash2 = @commitMap[commitId2].fileHash
         ret = fileHash1.map do |pth, hash|
             if fileHash2[pth].nil?
                 ["---- Delete file " + pth + "\n"] + FileSystem.read(@currPath + @PATH_PREFIX + hash).to_a()
@@ -186,52 +192,52 @@ class RevisionHistory
             raise "Commit " + commitId + " cannot be found."
         end
         
-        if node.getFileHash[path].nil?
+        if node.fileHash[path].nil?
             raise "File " + path + "is not under version control for commit " + commitId + "."
         end
 
-        return FileSystem.read(@currPath + @PATH_PREFIX + node.getFileHash[path])
+        return FileSystem.read(@currPath + @PATH_PREFIX + node.fileHash[path])
     end
 
     def calcHash(node)
         @count += 1
-        return @count
+        return Digest::SHA1.hexdigest node.to_s
     end
 
     def setCommitMsg(msg)
-        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+        if @temp.nil? || @temp.state == RevisionState::INITIALIZED
             puts "No changes added to commit"
             return -1
         end
-        @temp.setCommitMsg(msg)
+        @temp.commitMsg = msg
     end
 
     def commit()
-        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+        if @temp.nil? || @temp.state == RevisionState::INITIALIZED
             puts "No changes added to commit"
             return [-1, nil]
         end
-
+        @temp.time = DateTime.now.to_s
         commitId = calcHash(@temp)
-        @temp.setCommitId(commitId)
+        @temp.commitId = commitId
         @commitMap[commitId] = @temp
         if !@tail.nil?
-            @tail.setNext(@temp)
-            @temp.setPrev(@tail)
+            @tail.next = @temp
+            @temp.prev = @tail
         else
             @head = @temp
         end
-        @temp.setState(RevisionState::COMMITED)
+        @temp.state = RevisionState::COMMITED
         @tail = @temp
         @temp = nil
-        return [commitId, @tail.getCommitMsg]
+        return [commitId, @tail.commitMsg]
     end
 
     def heads
         if @tail.nil?
             raise "The repository is empty."
         end
-        return [@tail.getCommitId, @tail.getCommitMsg]
+        return [@tail.commitId, @tail.commitMsg]
     end
 
     def log
@@ -246,19 +252,19 @@ class RevisionHistory
         if @commitMap[commitId].nil?
             raise "Invalid CommitID " + commitId
         end
-        fileHash = @commitMap[commitId].getFileHash
+        fileHash = @commitMap[commitId].fileHash
         fileHash.each {|pth, hash| FileSystem.cpy(@currPath + @PATH_PREFIX + hash, @currPath + pth)}
         return 0
     end
 
     def status
-        if @temp.nil? || @temp.getState == RevisionState::INITIALIZED
+        if @temp.nil? || @temp.state == RevisionState::INITIALIZED
             return "No changes in current repository"
         elsif @tail.nil?
-            "Added file:\n" + @temp.getFileHash.collect {|pth, hash| pth}
+            "Added file:\n" + @temp.fileHash.collect {|pth, hash| pth}
         else
-            fileHash1 = @tail.getFileHash
-            fileHash2 = @temp.getFileHash
+            fileHash1 = @tail.fileHash
+            fileHash2 = @temp.fileHash
             modified = []
             deleted = []
             added = []
@@ -302,8 +308,8 @@ if __FILE__ == $0
 
     rh.add("./b.txt")
     # puts rh.status
-    # rh.setCommitMsg("Add\nb.txt\nTest\nMulti-line")
-    # rh.commit()
+    rh.setCommitMsg("Add\nb.txt\nTest\nMulti-line")
+    rh.commit()
     rh.rh2Text
 
     rh = RevisionHistory.new(Dir.pwd, false)
