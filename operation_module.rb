@@ -138,7 +138,7 @@ module Operation
             puts "commit message is %s" % [com[1]]
             result=com[0]
             rh.rh2Text()
-            if result>=0
+            if result.length>=0
                 return 0;
             else
                 return 1;
