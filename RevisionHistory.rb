@@ -12,9 +12,13 @@ class RevisionHistory
     attr_accessor :tail
     attr_accessor :hashCount
     attr_accessor :currPath
+    attr_accessor :temp
+    attr_accessor :commitMap
 
     attr_reader :head
     attr_reader :tail
+    attr_reader :temp
+    attr_reader :commitMap
 
     def initialize(path, init)
         @PATH_PREFIX = ".dvcs/"

@@ -91,43 +91,43 @@ class Test_p1 < Minitest::Test
     end
   end
   
-  # def test_merge
+  def test_merge
     
-  #   rh = nil
+    rh = nil
      
-  #   gu = GU.new()
-  #   #rh = RevisionHistory.new(Dir.pwd + "/Project", true)
-  #   Dir.chdir("Project") do
-  #     rh = RevisionHistory.new(Dir.pwd, true)
-  #     File.open("new.txt", "w"){|f| f.write("Contents of the file")}
-  #     rh.add("new.txt")
-  #     rh.commit()
-  #     rh.rh2Text()
-  #   end
-  #   Dir.chdir("Temp") do
-  #     FileSystem.clone("../Project")
-  #     Dir.chdir("Project") do
-  #       rh2 = RevisionHistory.new(Dir.pwd, false)
-  #       File.open("a.txt", "w"){|f| f.write("contents of file a.txt")}
-  #       rh2.add("a.txt")
-  #       rh2.commit()
-  #       rh.rh2Text()
-  #     end
-  #   end
+    gu = GU.new()
+    #rh = RevisionHistory.new(Dir.pwd + "/Project", true)
+    Dir.chdir("Project") do
+      rh = RevisionHistory.new(Dir.pwd, true)
+      File.open("new.txt", "w"){|f| f.write("Contents of the file")}
+      rh.add("new.txt")
+      rh.commit()
+      rh.rh2Text()
+    end
+    Dir.chdir("Temp") do
+      FileSystem.clone("../Project")
+      Dir.chdir("Project") do
+        rh2 = RevisionHistory.new(Dir.pwd, false)
+        File.open("a.txt", "w"){|f| f.write("contents of file a.txt")}
+        rh2.add("a.txt")
+        rh2.commit()
+        rh2.rh2Text()
+      end
+    end
     
-  #   Dir.chdir("Project") do
-  #     File.open("b.txt", "w") {|f| f.write("Contents of file b.txt")}
-  #     rh.add("b.txt")
-  #     rh.commit()
-  #     rh.rh2Text()
-  #     #pull to force an implicit merge
-  #     gu.pull("../Temp/Project")
-  #     output, status = Open3.capture2("diff a.txt ../Temp/Project/a.txt")
-  #     assert output.empty?, "Failed to keep files in merge"
-  #     output, status = Open3.capture2("diff b.txt ../Temp/Project/b.txt")
-  #     assert output.empty?, "Failed to transfer files in merge"
-  #   end
-  # end
+    Dir.chdir("Project") do
+      File.open("b.txt", "w") {|f| f.write("Contents of file b.txt")}
+      rh.add("b.txt")
+      rh.commit()
+      rh.rh2Text()
+      #pull to force an implicit merge
+      gu.pull("../Temp/Project")
+      output, status = Open3.capture2("diff a.txt ../Temp/Project/a.txt")
+      assert output.empty?, "Failed to keep files in merge"
+      output, status = Open3.capture2("diff b.txt ../Temp/Project/b.txt")
+      assert output.empty?, "Failed to transfer files in merge"
+    end
+  end
   
   def teardown 
     if Dir.exist?("Project")

@@ -18,10 +18,10 @@ module GeneralUtility
 	def lca(rh_s, rh_t)
 		tree_s = rh_s.head
 		tree_t = rh_t.head
-		if (tree_s.getCommitId() == tree_t.getCommitId())
+		if (tree_s.commitId == tree_t.commitId)
 			identical_node = nil
 			while (tree_s != nil && tree_t != nil)
-				if (tree_s.getCommitId() == tree_t.getCommitId())
+				if (tree_s.commitId == tree_t.commitId)
 					identical_node = tree_s
 				end
 				tree_s = tree_s.next
@@ -103,7 +103,7 @@ module GeneralUtility
 	end
 
 	def merge(rh_s, rh_t, common)
-		if (common.next != nil && common.getCommitId() == rh_t.tail.getCommitId())
+		if (common.next != nil && common.commitId == rh_t.tail.commitId)
 			#fast-forward merge
 			rh_t.tail.next = common.next
 			rh_t.tail.next.prev = rh_t.tail
@@ -128,90 +128,98 @@ module GeneralUtility
 			rh_t.rh2Text()
 
 			return 1
-		elsif (common.next == nil && common.getCommitId() == rh_t.tail.getCommitId())
+		elsif (common.next == nil && common.commitId == rh_t.tail.commitId)
 			puts 'Repositories are identical, no need to push/pull'
 			return 0
-		elsif (common.next != nil && common.getCommitId() != rh_t.tail.getCommitId())
+		elsif (common.next != nil && common.commitId != rh_t.tail.commitId)
 			#3-way merge
 			cursor = rh_t.tail
-			while (cursor.getCommitId() != common.getCommitId())
+			while (cursor.commitId != common.commitId)
 				cursor = cursor.prev
 			end
 
-			lca_hashes = common.getFileHash()
-			src_hashes = rh_s.tail.getFileHash()
-			target_hashes = rh_t.tail.getFileHash()
+			lca_hashes = common.fileHash
+			src_hashes = rh_s.tail.fileHash
+			target_hashes = rh_t.tail.fileHash
 
 			src_deletions = get_deletions(lca_hashes, src_hashes)
 			tgt_deletions = get_deletions(lca_hashes, target_hashes)
 
 			src_additions = get_additions(lca_hashes, src_hashes)
 			src_modifications = get_modifications(lca_hashes, src_hashes)
-			tgt_additions = get_additions(lca_hashes, src_hashes)
+			tgt_additions = get_additions(lca_hashes, target_hashes)
 			tgt_modifications = get_modifications(lca_hashes, target_hashes)
 
 			all_deletions = src_deletions + tgt_deletions
+			# p src_additions
+			# p tgt_additions
 
 			merge_conflicts = get_conflicts(src_modifications, tgt_modifications, src_additions, tgt_additions)
 
-			for i in merge_conflicts
-				puts i
-			end
-
 			if merge_conflicts.length > 0
-				answered = false
-				while (!answered)
-					puts 'Merge conflict happens, merge forcibly? (Y/N)'
-					input = gets
-					if (input.strip.downcase == 'y')
-						answered = true
-						puts 'not supported yet, merge terminated'
-					elsif (input.strip.downcase == 'n')
-						answered = true
-						puts 'merge terminated by user'
-					else
-						puts 'input not recognized, merge terminated'
-					end
-				end
+				
 			else
+				
 				merge_node = RevisionNode.new()
-				merge_node = common
-				common_file_hash = merge_node.getFileHash()
+				common_file_hash = common.fileHash
 				h_add_s = Hash[*src_additions.flatten]
 				h_add_t = Hash[*tgt_additions.flatten]
 				h_mod_s = Hash[*strip_modification(src_modifications).flatten]
 				h_mod_t = Hash[*strip_modification(tgt_modifications).flatten]
-				common_file_hash.merge(h_add_s)
-				common_file_hash.merge(h_add_t)
-				common_file_hash.merge(h_mod_s)
-				common_file_hash.merge(h_mod_t)
+				common_file_hash = common_file_hash.merge(h_add_s)
+				common_file_hash = common_file_hash.merge(h_add_t)
+				common_file_hash = common_file_hash.merge(h_mod_s)
+				common_file_hash = common_file_hash.merge(h_mod_t)
 				for deletion in all_deletions
 					common_file_hash.delete(deletion)
 				end
-				merge_node.setFileHash(common_file_hash)
-				cur_id = merge_node.getCommidId() + 1
-				merge_node.setCommitId(cur_id)
-				merge_node.setCommitMsg('Merged ' + rh_s.currPath + ' to ' + rh_t.currPath)
-				merge_node.setState(3)
+				merge_node.fileHash = common_file_hash
+				merge_node.commitId = nil
+				merge_node.commitMsg = ('Merged ' + rh_s.currPath + ' to ' + rh_t.currPath)
+				merge_node.state = 3
 				merge_node.next = nil
+				merge_node.time = DateTime.now.to_s
+				commitId = rh_t.calcHash(merge_node)
+				merge_node.commitId = commitId
+				# puts "-----------commit--------------"
+
+				# puts ""
+				# p rh_s.tail
+				# puts ""
+				# p rh_t.tail
+				# puts "---------------"
 				while (rh_s.tail.prev != nil)
-					if (rh_s.tail.getCommidId() == common.getCommidId())
+					if (rh_s.tail.commitId == common.commitId)
 						break
 					end
 					rh_s.tail = rh_s.tail.prev
 				end
 				while (rh_t.tail.prev != nil)
-					if (rh_t.tail.getCommidId() == common.getCommidId())
+					if (rh_t.tail.commitId == common.commitId)
 						break
 					end
 					rh_t.tail = rh_t.tail.prev
 				end
+
+				# p merge_node
+
+
+				# puts "--------------"
 				rh_t.tail.next = merge_node
 				rh_t.tail.next.prev = rh_t.tail
 				rh_t.tail = rh_t.tail.next
 				rh_s.tail.next = merge_node
 				rh_s.tail.next.prev = rh_s.tail
 				rh_s.tail = rh_s.tail.next
+				rh_s.commitMap[commitId] = merge_node
+				rh_t.commitMap[commitId] = merge_node
+
+				# puts rh_s.log
+				# puts ""
+				# puts rh_t.log
+
+				# puts rh_s.commitMap.keys
+				# puts rh_t.commitMap.keys
 
 				src_file_list = list_files(rh_s.currPath + $repo_folder)
 				target_file_list = list_files(rh_t.currPath + $repo_folder)
@@ -224,7 +232,9 @@ module GeneralUtility
 				else
 					raise 'source or target revision history is corrupted'
 				end
-
+				
+				rh_t.checkout(commitId)
+				rh_s.checkout(commitId)
 				rh_t.rh2Text()
 				rh_s.rh2Text()
 
