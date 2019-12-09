@@ -10,3 +10,35 @@ There are a few small issues there that due to the time constraints we weren't a
 file will definitely not run. The parser and operations test file essentially contains no relevantly programed tests so far. Most 
 of them are trivial but they require some amount of knowledge of how the methods are implemented in order to stub the responses.
 Since the methods aren't working at the moment, I dind't program the tests out.
+
+-------------------Updated Dec 8, 2019---------------------
+The parser_module.rb is the entry point of the program
+The parser_module.rb function and argument specifications:
+
+init: 0 argument
+	Init a new repo at the current working dir
+clone: 1 argument: path
+	Clone takes in path and clone the repo at the path to current working dir
+add: 1 argument: path
+	add file at path to repo
+remove: 1 argument: path
+	remove file at path from repo
+status: 0 argument
+	print the status of the repo
+heads: 0 argument
+	print the current head of the repo
+diff: 2 arguments: path1, path2
+	diff 2 files from path1 and path2
+cat: 2 arguments: path, rev_number
+	cat file at path of certain rev_number
+checkout: 1 argument: commitId
+	checkout the current repo to commitId
+commit: 1 argument or 0
+	optionally give commit message
+log: 0 argument
+	print log of current repo
+pull: 1 argument: path
+	pull from repository at given path
+push: 1 argument: path
+	push to repository at given path
+	
