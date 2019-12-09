@@ -5,7 +5,7 @@ require 'digest/sha1'
 module FileSystem
 	def FileSystem.init()
 	  	if Dir.exist?('./.dvcs')
-	  		puts 'cannot create directory .dvcs: directory exists!'
+	  		raise 'cannot create directory .dvcs: directory exists!'
 	  		0 
 		else
 			Dir.mkdir './.dvcs'
@@ -20,7 +20,7 @@ module FileSystem
 			FileUtils.cp_r "#{pth}", './'
 			0
 		else
-			puts 'source dir is not a dvcs project!' 
+			raise 'source dir is not a dvcs project!' 
 			1
 		end
 	end
