@@ -292,6 +292,7 @@ module GeneralUtility
 				raise 'target repository is irrelevant'
 			end
 		end
+		return 1
 	end
 
 	def pull(remote_dir)
@@ -312,6 +313,7 @@ module GeneralUtility
 				raise 'remote repository is irrelevant'
 			end
 		end
+		return 1
 	end
 
 end
