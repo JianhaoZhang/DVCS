@@ -157,7 +157,23 @@ module GeneralUtility
 			merge_conflicts = get_conflicts(src_modifications, tgt_modifications, src_additions, tgt_additions)
 
 			if merge_conflicts.length > 0
-				
+				prompt = "Merge Conflict \n"
+				for conflict in merge_conflicts
+					if conflict[1] == "addition"
+						prompt += conflict[0] + " has addition conflict \n"
+						prompt += "add => " + conflict[2][0..3] + "..." + conflict[2][36..39] +"\n"
+						prompt += "add => " + conflict[3][0..3] + "..." + conflict[3][36..39] +"\n"
+						prompt += "Could not be resolved \n"
+						prompt += "\n"
+					else
+						prompt += conflict[0] + " has modification conflict \n"
+						prompt += conflict[1][0..3] + "..." + conflict[1][36..39] + " => " + conflict[2][0..3] + "..." + conflict[2][36..39] +"\n"
+						prompt += conflict[1][0..3] + "..." + conflict[1][36..39] + " => " + conflict[3][0..3] + "..." + conflict[3][36..39] +"\n"
+						prompt += "Could not be resolved \n"
+						prompt += "\n"
+					end
+				end
+				puts prompt
 			else
 				
 				merge_node = RevisionNode.new()
