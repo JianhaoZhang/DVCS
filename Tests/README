@@ -11,6 +11,41 @@ file will definitely not run. The parser and operations test file essentially co
 of them are trivial but they require some amount of knowledge of how the methods are implemented in order to stub the responses.
 Since the methods aren't working at the moment, I dind't program the tests out.
 
+-------------------Updated Dec 16, 2019---------------------
+Beta Test Summary:
+
+Post83:
+        Clone does not work
+        Add directory recursively
+        Remove a file that is not tracked
+        Remove file when no file specified will through an exception
+        Cannot commit  when a file is removed from the working tree
+        Catch all exceptions and print appropriate message(See the report)
+        Status doesn't show addition and removal of a file
+        Push/pull does not work
+
+Post80:
+        add -> remove -> add the same file will show "Added the same file XXX"
+        remove a file that is not added will show "command succeeds"
+        status will show "no implicit conversion of Array into String"
+        log will print strange "he"
+
+Post79:
+        commit gives some interesting output when re-committing a file that has been both previously committed (unchanged since then), and then removed
+        'cat' gives "no implicit conversion of nil into String"
+        Command to use dvcs is really long
+
+Post76:
+        Doesn’t show the list of files that are tracked, changed, untracked(related to Post83)
+        ‘Heads’ doesn’t change as ‘Log’ doesn’t show the updated list after checkout
+
+Post75:
+        Some prints are not displayed correctly("\n")
+        Commit without changes will show weird message
+        add -> remove will still commit successfully
+
+        See followups for detailed test cases
+
 -------------------Updated Dec 8, 2019---------------------
 The parser_module.rb is the entry point of the program
 The parser_module.rb function and argument specifications:
