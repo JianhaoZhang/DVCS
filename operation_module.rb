@@ -49,6 +49,7 @@ module Operation
         rh=RevisionHistory.new(Dir.pwd, false)
         begin
             if rh.delete(pth)>=0
+                rh.rh2Text()
                 return 0;
             else
                 return 1;
