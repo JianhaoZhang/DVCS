@@ -122,11 +122,11 @@ module GeneralUtility
 				clear_file_list = list_files(rh_s.currPath)
 				clear_file_list.each{|f| FileSystem.cpy(rh_s.currPath + f, rh_t.currPath)}
 			else
-				raise 'source or target revision history is corrupted'
+				puts 'source or target revision history is corrupted'
 			end
 
 			rh_t.rh2Text()
-
+			puts 'Successfully merged at ' + common.commitId
 			return 1
 		elsif (common.next == nil && common.commitId == rh_t.tail.commitId)
 			puts 'Repositories are identical, no need to push/pull'
@@ -163,13 +163,13 @@ module GeneralUtility
 						prompt += conflict[0] + " has addition conflict \n"
 						prompt += "add => " + conflict[2][0..3] + "..." + conflict[2][36..39] +"\n"
 						prompt += "add => " + conflict[3][0..3] + "..." + conflict[3][36..39] +"\n"
-						prompt += "Could not be resolved \n"
+						prompt += "Please resolve conflict and commit before merge \n"
 						prompt += "\n"
 					else
 						prompt += conflict[0] + " has modification conflict \n"
 						prompt += conflict[1][0..3] + "..." + conflict[1][36..39] + " => " + conflict[2][0..3] + "..." + conflict[2][36..39] +"\n"
 						prompt += conflict[1][0..3] + "..." + conflict[1][36..39] + " => " + conflict[3][0..3] + "..." + conflict[3][36..39] +"\n"
-						prompt += "Could not be resolved \n"
+						prompt += "Please resolve conflict and commit before merge \n"
 						prompt += "\n"
 					end
 				end
@@ -257,7 +257,7 @@ module GeneralUtility
 			end
 			return 2
 		else
-			raise 'impossible lca, source, target tuples'
+			raise 'Invalid common ancestor, probably target is ahead of source'
 			return -1
 		end
 	end
