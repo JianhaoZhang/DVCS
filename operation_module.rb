@@ -62,7 +62,7 @@ module Operation
     def Operation_status()
         rh=RevisionHistory.new(Dir.pwd, false)
         begin
-            p rh.status()
+            puts rh.status()
             rh.rh2Text()
             return 0;
         rescue StandardError => e
@@ -153,7 +153,6 @@ module Operation
         rh=RevisionHistory.new(Dir.pwd, false)
         begin
             puts rh.log()
-            puts "he"
             rh.rh2Text()
             return 0;
         rescue StandardError => e

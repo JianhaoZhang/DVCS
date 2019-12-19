@@ -218,8 +218,7 @@ class RevisionHistory
 
     def commit()
         if @temp.nil? || @temp.state == RevisionState::INITIALIZED
-            puts "No changes added to commit"
-            return ["", nil]
+            raise "No changes added to commit"
         end
         @temp.time = DateTime.now.to_s
         commitId = calcHash(@temp)
