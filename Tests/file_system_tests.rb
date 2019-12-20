@@ -19,25 +19,25 @@ class Test_p1 < Minitest::Test
     system("mkdir Project \n cd Project \n touch new.txt\n")
     
   end
-  def test_init
+  # def test_init
 
-    output1 = ""
+  #   output1 = ""
 
-    Dir.chdir("Project") do
-      output3, status = Open3.capture2("pwd")
+  #   Dir.chdir("Project") do
+  #     output3, status = Open3.capture2("pwd")
 
-      FileSystem.init()
+  #     FileSystem.init()
 
-      output1 = Open3.capture2("ls -a")
+  #     output1 = Open3.capture2("ls -a")
 
       
-      assert Dir.exist?(".dvcs"), ".dvcs not created"
-      assert File.file?(".dvcs/revision_history_file"), "revision history file not created"
-      t = false
-      assert FileSystem.init() == 0, "init should fail!"
-    end
+  #     assert Dir.exist?(".dvcs"), ".dvcs not created"
+  #     assert File.file?(".dvcs/revision_history_file"), "revision history file not created"
+  #     t = false
+  #     assert FileSystem.init() == 0, "init should fail!"
+  #   end
 
-  end
+  # end
   
   def test_clone
  

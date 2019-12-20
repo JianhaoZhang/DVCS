@@ -223,7 +223,8 @@ class Test_p1 < Minitest::Test
       out, err = capture_io do
         gu.pull("../Temp/Project")
       end
-      assert_equal "Merge Conflict \nBool.hs has modification conflict \n3b7e...c827 => 4116...931b\n3b7e...c827 => a0fe...8cc6\nCould not be resolved \n\nWhale.hs has addition conflict \nadd => ff0e...0c87\nadd => 02d0...2714\nCould not be resolved \n\n", out
+      puts out
+      assert_equal "Merge Conflict \nBool.hs has modification conflict \n3b7e...c827 => 4116...931b\n3b7e...c827 => a0fe...8cc6\nPlease resolve conflict and commit before merge \n\nWhale.hs has addition conflict \nadd => ff0e...0c87\nadd => 02d0...2714\nPlease resolve conflict and commit before merge \n\n", out
       
     end
   end
