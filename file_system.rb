@@ -5,23 +5,27 @@ require 'digest/sha1'
 module FileSystem
 	def FileSystem.init()
 	  	if Dir.exist?('./.dvcs')
-	  		raise 'cannot create directory .dvcs: directory exists!'
-	  		0 
+	  		# raise 'cannot create directory .dvcs: directory exists!'
+	  		1
 		else
 			Dir.mkdir './.dvcs'
 			out_file = File.new(File.join("./.dvcs", "revision_history_file"), "w")
 			out_file.close
-			1
+			0
 		end
 	end
 
 	def FileSystem.clone(pth)
 		if Dir.entries("#{pth}").select {|entry| File.directory? "#{pth}/#{entry}"}.include? '.dvcs'
-			FileUtils.cp_r "#{pth}", './'
-			0
-		else
-			raise 'source dir is not a dvcs project!' 
+			# FileUtils.cp_r "#{pth}", './'
+			Dir.foreach("#{pth}") do |filename|
+				next if filename == '.' or filename == '..'
+				FileUtils.cp_r "#{pth}/#{filename}", './'
+			end
 			1
+		else
+			# raise 'source dir is not a dvcs project!' 
+			0
 		end
 	end
 
@@ -75,7 +79,7 @@ module FileSystem
 
 	def FileSystem.read(path)
 		if File.file?(path)
-			open(path,"r")
+			open(path)
 		else
 			puts "file not exist!"
 			0
@@ -87,7 +91,7 @@ module FileSystem
 			puts "no such a file!"
 			0
 		else
-			open(path, 'w') { |f|
+			File.open(path, 'w') { |f|
 	  			f.puts(string)
 			}
 			1
@@ -130,7 +134,8 @@ end
 
 # dvcs_file = DVCS.new
 # dvcs_file.init()
-# dvcs_file.clone('/u/zkou2/Code/453/p2')
+# p '123'
+# dvcs_file.clone('/u/zkou2/abc')
 # dvcs_file.store_rh(['a', 'b', 'c'])
 # p dvcs_file.diff('file1', 'file2')
 # p dvcs_file.write('file1','123')
