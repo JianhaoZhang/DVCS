@@ -37,7 +37,7 @@ module FileSystem
 			}
 			return 1
 		else
-			puts "no revision history file! (s)"
+			raise "no revision history file! (s)"
 			return 0
 		end
 	end
@@ -51,7 +51,7 @@ module FileSystem
 
 			text
 		else
-			puts "no revision history file! (g)"
+			raise "no revision history file! (g)"
 			0
 		end
 	end

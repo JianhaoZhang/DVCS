@@ -115,10 +115,10 @@ class RevisionHistory
     def rh2Text()
         str = ""
         if !self.head.nil?
-            str += self.log
+            str += self.head.debug_print
         end
         if !@temp.nil? && @temp.state != RevisionState::INITIALIZED
-            str += "+ " + @temp.to_s
+            str += "+ " + @temp.debug_to_s
         end
         FileSystem.store_rh(str, @currPath)
     end
@@ -152,12 +152,12 @@ class RevisionHistory
     def delete(path)
         if @temp.nil?
             @temp = RevisionNode.new()
-            if !@head.nil?
+            if !@tail.nil?
                 @temp.fileHash = @tail.fileHash.clone
             end
         end
         @temp.deleteFile(path)
-        if @tail.nil? || @tail.fileHash != @temp.fileHash
+        if (@tail.nil? && !@temp.fileHash.nil? && !@temp.fileHash.length.zero?) || (!@tail.nil? && @tail.fileHash != @temp.fileHash)
             @temp.state = RevisionState::MODIFIED
         else
             @temp.state = RevisionState::INITIALIZED
@@ -205,7 +205,7 @@ class RevisionHistory
 
     def calcHash(node)
         @count += 1
-        return Digest::SHA1.hexdigest node.to_s
+        return Digest::SHA1.hexdigest node.debug_print
     end
 
     def setCommitMsg(msg)
@@ -264,7 +264,7 @@ class RevisionHistory
         if @temp.nil? || @temp.state == RevisionState::INITIALIZED
             return "No changes in current repository"
         elsif @tail.nil?
-            "Added file:\n" + @temp.fileHash.collect {|pth, hash| pth}
+            "Added file:\n" + @temp.fileHash.collect {|pth, hash| pth}.to_s
         else
             fileHash1 = @tail.fileHash
             fileHash2 = @temp.fileHash

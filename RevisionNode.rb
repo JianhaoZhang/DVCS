@@ -57,6 +57,10 @@ class RevisionNode
     end
 
     def to_s
+        "CommitID: #{@commitId}\nTime: #{@time}\nCommit Message: #{@commitMsg}\n\n"
+    end
+
+    def debug_to_s
         "CommitID: #{@commitId}\nTime: #{@time}\nCommit Message: #{@commitMsg}\nFile Hash: #{@fileHash}\n\n"
     end
 
@@ -65,6 +69,14 @@ class RevisionNode
             self.to_s
         else
             self.to_s + @next.print
+        end
+    end
+
+    def debug_print
+        if @next.nil?
+            self.debug_to_s
+        else
+            self.debug_to_s + @next.debug_print
         end
     end
 

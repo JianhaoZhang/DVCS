@@ -73,7 +73,7 @@ class Test_p1 < Minitest::Test
       rh.commit()
       # puts rh.log()
       
-      f = rh.getFile("new.txt", 1)
+      f = rh.getFile("new.txt", rh.head.commitId)
       file = ""
       f.each_line do |line|
           file += line
@@ -98,10 +98,10 @@ class Test_p1 < Minitest::Test
       rh.add("new.txt")
       rh.commit()
       puts "printing diff"
-      puts rh.diff(1, 1)
+      puts rh.diff(rh.head.commitId, rh.head.commitId)
       puts "end print"
-      assert rh.diff(1, 1) == [nil, nil, nil, nil], "Expected No Changes"
-      assert [nil, nil, nil, nil] != rh.diff(1, 2), "Expected Changes"
+      assert rh.diff(rh.head.commitId, rh.head.commitId) == [nil, nil, nil, nil], "Expected No Changes"
+      assert [nil, nil, nil, nil] != rh.diff(rh.head.commitId, rh.tail.commitId), "Expected Changes"
       
     end
   end
@@ -150,7 +150,7 @@ class Test_p1 < Minitest::Test
       rh.commit()
       #puts rh.log()
       
-      rh.checkout(1)
+      rh.checkout(rh.head.commitId)
       assert_equal original_file, File.read("new.txt")
     end
   end
